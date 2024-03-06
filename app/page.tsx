@@ -3,6 +3,7 @@
  * @see https://v0.dev/t/PmwTvNfrVgf
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
+import { Banner } from "@/components/cookies/banner";
 import Link from "next/link";
 
 export default function LandingPage() {
@@ -159,6 +160,7 @@ export default function LandingPage() {
           </Link>
         </nav>
       </footer>
+      <Banner />
     </div>
   );
 }
