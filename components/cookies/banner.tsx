@@ -113,7 +113,7 @@ function BannerTriggers(props: React.PropsWithChildren<BannerTriggersProps>) {
             if (isPro && i === 0) {
               // add popover around this button
               // if this is going to be a pro feature, then we can add a prop to the button
-              return <ShowMeButton key={i} />;
+              return <ShowMeButton key={i} {...btn} />;
             }
             return <Button key={i} {...btn} {...rest} />;
           })
@@ -142,7 +142,12 @@ function ShowMeButton({ btn, ...rest }: { btn?: ButtonProps }) {
   );
 }
 
-const defaultOptions = [
+type CookieOption = {
+  label: string;
+  description: string;
+}
+
+const defaultOptions:CookieOption[] = [
   {
     label: "Necessary",
     description: "Cookies necessary for website functionality.",
@@ -161,15 +166,20 @@ const defaultOptions = [
   },
 ];
 
-function BannerOptions({
-  options,
-  children,
-}: React.PropsWithChildren<{ options: any[] }>) {
+function BannerOptions({ options }: { options: CookieOption[] }) {
   return (
     <div className="grid gap-4 p-2 min-w-2xl bg-background/40 backdrop-blur-md rounded-md z-10">
       {options?.length
-        ? options.map((option) => {
-            return <Option key={option.label} {...option} />;
+        ? options.map((option, i) => {
+            const isDisabled = i === 0;
+            return (
+              <Option
+                key={option.label}
+                {...option}
+                disabled={isDisabled}
+                className="disabled:opacity-40 disabled:hover:opacity-20"
+              />
+            );
           })
         : null}
     </div>
@@ -179,13 +189,28 @@ function BannerOptions({
 function Option({
   label,
   description,
+  disabled,
+  className,
 }: {
   label: string;
   description: string;
+  disabled?: boolean;
+  className?: string;
 }) {
   return (
     <div className="pl-1 py-1 flex items-center space-x-4 pt-2 [&:not(:first-child)]:border-t">
-      <Switch id={label} />
+      <Switch
+        id={label}
+        className={cn(
+          "data-[state=checked]:bg-gray-700 data-[state=unchecked]:bg-gray-500",
+          className
+        )}
+        thumb={{
+          className:
+            "data-[state=checked]:bg-gray-300 data-[state=unchecked]:bg-gray-400",
+        }}
+        disabled={disabled}
+      />
       <div>
         <Label htmlFor={label} className="text-sm leading-5">
           {label}
