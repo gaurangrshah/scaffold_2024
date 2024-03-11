@@ -5,62 +5,69 @@ import {
   defaultCookies,
   setCookies,
   getCookies,
+  getCookieConsent,
   gtagFn,
   CONSENT_COOKIE_NAME,
+  setConsentCookies,
+  cookieExpiry,
+  TAG_MANAGER_KEY,
+  DATA_LAYER,
 } from "@/lib/utils";
 import { GoogleTagManager, sendGTMEvent } from "@next/third-parties/google";
-import { getCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";
 import { PropsWithChildren, useEffect, useLayoutEffect, useState } from "react";
 
-
+const DEFAULT_CONSENT = {
+  primary: {
+    security_storage: true,
+    functionality_storage: true,
+    personalization_storage: true,
+  },
+  secondary: {
+    ad_storage: false,
+    analytics_storage: false,
+    ad_personalization: false,
+    ad_user_data: false,
+  },
+};
 
 export default function GoogleTagManagerWrapper({
   consentCookie = CONSENT_COOKIE_NAME, // the name of the cookie that stores the user's consent
-  defaultConsent = defaultCookies,
-  secondaryConsent = adCookies,
+  defaultConsent = DEFAULT_CONSENT.primary,
+  secondaryConsent = DEFAULT_CONSENT.secondary,
   children,
 }: PropsWithChildren<{
   consentCookie?: string;
-  defaultConsent?: string[];
-  secondaryConsent?: string[];
+  defaultConsent?: Consent["primary"];
+  secondaryConsent?: Consent["secondary"];
 }>) {
-  // starts off true, but will be set to false if the user has not given consent
-  // this will prevent the GoogleTagManager component from being mounted
-  // and allows us to fire the consent event before the GoogleTagManager component is mounted
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [biscuits, setBiscuits] = useState<Consent>(() => {
+    let _cookies = JSON.parse(getCookie(consentCookie) || "{}");
+    _cookies = !!Object.keys(_cookies).length
+      ? _cookies // if the user has given consent, set state from the cookie
+      : {
+          // if the user has not given consent, use the default consent
+          primary: defaultConsent ?? DEFAULT_CONSENT.primary,
+          secondary: secondaryConsent ?? DEFAULT_CONSENT.secondary,
+        };
 
-  useLayoutEffect(() => {
-    // use Layout Effect to ensure that the gtag function is available
-    // before the GoogleTagManager component is mounted
-    // This is important because the GoogleTagManager component uses the gtag function
-    // to send import { getCookies } from '@/lib/analytics/utils';
-    // the initial consent to Google Tag Manager and most fire before any other tags are read
-
-    // check if the user has already given consent
-    const consent = !!getCookie(consentCookie);
-    if (!consent) {
-      setCookies([...defaultConsent]);
-      setCookies([...secondaryConsent], true);
-    }
+    // set the cookies in the browser
+    setConsentCookies(_cookies, consentCookie); // sets default consent
     if (typeof window !== "undefined") {
-      // if the user has not given consent, send the default consent to Google Tag Manager
-      const gTag = gtagFn("dataLayer", "google_tag_manager");
-      if (gTag) {
-        gTag("consent", "default", {
-          ...getCookies([...defaultCookies, ...adCookies]),
-        });
+      // send default consent values to GTM
+      const cookieConsent = getCookieConsent(consentCookie);
+      const gTag = gtagFn(DATA_LAYER, TAG_MANAGER_KEY);
+      if (gTag && typeof gTag === "function") {
+        gTag("consent", "default", cookieConsent); // only for initial consent
+        console.log("sent initial consent to GTM");
       }
     }
-    // set the isEnabled state based on the consent
-    setIsEnabled(consent);
-    // This ensures that the consent event is fired before the GoogleTagManager component is mounted
-    // This is important because the GoogleTagManager component uses the gtag function
-    // to send the initial consent to Google Tag Manager and must fire before any other tags are read
-  }, [consentCookie, defaultConsent, secondaryConsent]);
+    return _cookies;
+  });
 
   return (
     <>
-      {isEnabled ? (
+      {Object.keys(biscuits).length ? (
         <GoogleTagManager
           gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!}
         />
