@@ -92,7 +92,7 @@ const _buttons: BannerTriggersProps["buttons"] = [
   { children: "Got it", variant: "default", type: "submit", size: "sm" },
 ];
 
-const isPro = false;
+const isPro = !!(process.env.NEXT_PUBLIC_FEATURE_PRO === "true");
 
 function BannerTriggers(props: React.PropsWithChildren<BannerTriggersProps>) {
   const { asChild, buttons, children, ...rest } = props;
