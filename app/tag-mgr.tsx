@@ -33,24 +33,35 @@ const GoogleTagManagerDispatch = createContext<
   React.Dispatch<Consent> | undefined
 >(undefined);
 
+function convertTagsToState(tags: string[], defaultConsent: boolean) {
+  return tags.reduce((acc: Record<string, boolean>, tag) => {
+    acc[tag] = defaultConsent;
+    return acc;
+  }, {});
+}
+
 export default function GoogleTagManagerProvider({
   consentCookie = CONSENT_COOKIE_NAME, // the name of the cookie that stores the user's consent
-  defaultConsent = DEFAULT_CONSENT.primary,
-  secondaryConsent = DEFAULT_CONSENT.secondary,
+  necessaryTags,
+  analyticsTags,
   children,
 }: PropsWithChildren<{
   consentCookie?: string;
-  defaultConsent?: Consent["primary"];
-  secondaryConsent?: Consent["secondary"];
+  necessaryTags?: PrimaryKeys[];
+  analyticsTags?: SecondaryKeys[];
 }>) {
-  const [biscuits, setBiscuits] = useState<Consent>(() => {
+  const [cookies, setCookies] = useState<Consent>(() => {
     let _cookies = JSON.parse(getCookie(consentCookie) || "{}");
     _cookies = !!Object.keys(_cookies).length
       ? _cookies // if the user has given consent, set state from the cookie
       : {
           // if the user has not given consent, use the default consent
-          primary: defaultConsent ?? DEFAULT_CONSENT.primary,
-          secondary: secondaryConsent ?? DEFAULT_CONSENT.secondary,
+          primary: necessaryTags?.length
+            ? convertTagsToState(necessaryTags, true) // convert the default tags to state
+            : DEFAULT_CONSENT.primary,
+          secondary: analyticsTags?.length
+            ? convertTagsToState(analyticsTags, false) // convert the secondary tags to state
+            : DEFAULT_CONSENT.secondary,
         };
 
     // set the cookies in the browser
@@ -61,16 +72,16 @@ export default function GoogleTagManagerProvider({
       const gTag = gtagFn(DATA_LAYER, TAG_MANAGER_KEY);
       if (gTag && typeof gTag === "function") {
         gTag("consent", "default", cookieConsent); // only for initial
-        console.log("sent initial consent to GTM");
+        // console.log("sent initial consent to GTM");
       }
     }
     return _cookies;
   });
 
   return (
-    <GoogleTagManagerContext.Provider value={biscuits}>
-      <GoogleTagManagerDispatch.Provider value={setBiscuits}>
-        {Object.keys(biscuits).length ||
+    <GoogleTagManagerContext.Provider value={cookies}>
+      <GoogleTagManagerDispatch.Provider value={setCookies}>
+        {Object.keys(cookies).length ||
         process.env.NEXT_PUBLIC_CURRENT_ENV === "dev" ? (
           <GoogleTagManager
             gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!}
