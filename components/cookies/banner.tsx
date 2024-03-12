@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
+import { BannerOptions } from "./banner-options";
 
 type BannerProps = React.PropsWithChildren<
   {
@@ -135,89 +136,8 @@ function ShowMeButton({ btn, ...rest }: { btn?: ButtonProps }) {
         <div className="absolute rotate-[270deg] -left-[2.2rem] pt-3 top-[3.3rem] opacity-90 z-0 drop-shadow-md">
           <p>Transparency</p>
         </div>
-        <BannerOptions options={defaultOptions} />
+        <BannerOptions options={[]} />
       </PopoverContent>
     </Popover>
-  );
-}
-
-type CookieOption = {
-  label: string;
-  description: string;
-};
-
-const defaultOptions: CookieOption[] = [
-  {
-    label: "Necessary",
-    description: "Cookies necessary for website functionality.",
-  },
-  {
-    label: "Performance",
-    description: "Cookies for measuring and improving site performance.",
-  },
-  {
-    label: "Functional",
-    description: "Cookies for enhanced functionality and personalization.",
-  },
-  {
-    label: "Targeting",
-    description: "Cookies for targeted advertising based on interests.",
-  },
-];
-
-function BannerOptions({ options }: { options: CookieOption[] }) {
-  return (
-    <div className="grid gap-4 p-2 min-w-2xl bg-background/40 backdrop-blur-md rounded-md z-10">
-      {options?.length
-        ? options.map((option, i) => {
-            const isDisabled = i === 0;
-            return (
-              <Option
-                key={option.label}
-                {...option}
-                disabled={isDisabled}
-                className="disabled:opacity-40 disabled:hover:opacity-20"
-              />
-            );
-          })
-        : null}
-    </div>
-  );
-}
-
-function Option({
-  label,
-  description,
-  disabled,
-  className,
-}: {
-  label: string;
-  description: string;
-  disabled?: boolean;
-  className?: string;
-}) {
-  return (
-    <div className="pl-1 py-1 flex items-center space-x-4 pt-2 [&:not(:first-child)]:border-t">
-      <Switch
-        id={label}
-        className={cn(
-          "data-[state=checked]:bg-gray-700 data-[state=unchecked]:bg-gray-500",
-          className
-        )}
-        thumb={{
-          className:
-            "data-[state=checked]:bg-gray-300 data-[state=unchecked]:bg-gray-400",
-        }}
-        disabled={disabled}
-      />
-      <div>
-        <Label htmlFor={label} className="text-sm leading-5">
-          {label}
-        </Label>
-        <p className="text-gray-500 dark:text-gray-400 text-xs">
-          {description}
-        </p>
-      </div>
-    </div>
   );
 }
