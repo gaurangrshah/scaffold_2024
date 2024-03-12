@@ -1,21 +1,17 @@
 "use client";
 
+import { PropsWithChildren, useState, createContext, useContext } from "react";
+import { getCookie } from "cookies-next";
+import { GoogleTagManager } from "@next/third-parties/google";
+
 import {
-  adCookies,
-  defaultCookies,
-  setCookies,
-  getCookies,
   getCookieConsent,
   gtagFn,
   CONSENT_COOKIE_NAME,
   setConsentCookies,
-  cookieExpiry,
   TAG_MANAGER_KEY,
   DATA_LAYER,
-} from "@/lib/utils";
-import { GoogleTagManager, sendGTMEvent } from "@next/third-parties/google";
-import { getCookie, setCookie } from "cookies-next";
-import { PropsWithChildren, useEffect, useLayoutEffect, useState } from "react";
+} from "@/lib/google-tag-manager/utils";
 
 const DEFAULT_CONSENT = {
   primary: {
@@ -31,7 +27,13 @@ const DEFAULT_CONSENT = {
   },
 };
 
-export default function GoogleTagManagerWrapper({
+// Create a new contexts
+const GoogleTagManagerContext = createContext<Consent | undefined>(undefined);
+const GoogleTagManagerDispatch = createContext<
+  React.Dispatch<Consent> | undefined
+>(undefined);
+
+export default function GoogleTagManagerProvider({
   consentCookie = CONSENT_COOKIE_NAME, // the name of the cookie that stores the user's consent
   defaultConsent = DEFAULT_CONSENT.primary,
   secondaryConsent = DEFAULT_CONSENT.secondary,
@@ -58,7 +60,7 @@ export default function GoogleTagManagerWrapper({
       const cookieConsent = getCookieConsent(consentCookie);
       const gTag = gtagFn(DATA_LAYER, TAG_MANAGER_KEY);
       if (gTag && typeof gTag === "function") {
-        gTag("consent", "default", cookieConsent); // only for initial consent
+        gTag("consent", "default", cookieConsent); // only for initial
         console.log("sent initial consent to GTM");
       }
     }
@@ -66,13 +68,35 @@ export default function GoogleTagManagerWrapper({
   });
 
   return (
-    <>
-      {Object.keys(biscuits).length ? (
-        <GoogleTagManager
-          gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!}
-        />
-      ) : null}
-      {children}
-    </>
+    <GoogleTagManagerContext.Provider value={biscuits}>
+      <GoogleTagManagerDispatch.Provider value={setBiscuits}>
+        {Object.keys(biscuits).length ? (
+          <GoogleTagManager
+            gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!}
+          />
+        ) : null}
+        {children}
+      </GoogleTagManagerDispatch.Provider>
+    </GoogleTagManagerContext.Provider>
   );
+}
+
+export function useGTM() {
+  const context = useContext(GoogleTagManagerContext);
+  if (context === undefined) {
+    throw new Error(
+      "useGoogleTagManager must be used within a GoogleTagManagerProvider"
+    );
+  }
+  return context;
+}
+
+export function useGTMDispatch() {
+  const context = useContext(GoogleTagManagerDispatch);
+  if (context === undefined) {
+    throw new Error(
+      "useGoogleTagManagerDispatch must be used within a GoogleTagManagerProvider"
+    );
+  }
+  return context;
 }

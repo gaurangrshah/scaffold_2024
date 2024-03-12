@@ -15,3 +15,7 @@ type Consent = {
   primary: Record<PrimaryKeys, boolean>;
   secondary: Record<SecondaryKeys, boolean>;
 };
+
+type CookieConsent = {
+  [key: PrimaryKeys | SecondaryKeys]: boolean;
+};
