@@ -92,7 +92,7 @@ const _buttons: BannerTriggersProps["buttons"] = [
   { children: "Got it", variant: "default", type: "submit", size: "sm" },
 ];
 
-const isPro = !!(process.env.NEXT_PUBLIC_FEATURE_PRO === "true");
+const isPro = !(process.env.NEXT_PUBLIC_FEATURE_PRO === "true");
 
 function BannerTriggers(props: React.PropsWithChildren<BannerTriggersProps>) {
   const { asChild, buttons, children, ...rest } = props;
@@ -111,8 +111,7 @@ function BannerTriggers(props: React.PropsWithChildren<BannerTriggersProps>) {
       {btns
         ? btns.map((btn, i) => {
             if (isPro && i === 0) {
-              // add popover around this button
-              // if this is going to be a pro feature, then we can add a prop to the button
+              // only show the feature button if the user has pro subscription
               return <ShowMeButton key={i} {...btn} />;
             }
             return <Button key={i} {...btn} {...rest} />;
@@ -145,9 +144,9 @@ function ShowMeButton({ btn, ...rest }: { btn?: ButtonProps }) {
 type CookieOption = {
   label: string;
   description: string;
-}
+};
 
-const defaultOptions:CookieOption[] = [
+const defaultOptions: CookieOption[] = [
   {
     label: "Necessary",
     description: "Cookies necessary for website functionality.",
