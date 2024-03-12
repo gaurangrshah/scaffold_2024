@@ -70,7 +70,8 @@ export default function GoogleTagManagerProvider({
   return (
     <GoogleTagManagerContext.Provider value={biscuits}>
       <GoogleTagManagerDispatch.Provider value={setBiscuits}>
-        {Object.keys(biscuits).length ? (
+        {Object.keys(biscuits).length ||
+        process.env.NEXT_PUBLIC_CURRENT_ENV === "dev" ? (
           <GoogleTagManager
             gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!}
           />
