@@ -4,14 +4,10 @@ import { Cookie } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button, type ButtonProps } from "../ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Switch } from "../ui/switch";
-import { Label } from "../ui/label";
-import { BannerOptions } from "./banner-options";
+
+import { GroupedOptions, ShowMeButton } from "./banner-options";
+import { getCookie } from "cookies-next";
+import { ANALYTICS_TAGS, NECESSARY_TAGS, tagDetails } from "./utils";
 
 type BannerProps = React.PropsWithChildren<
   {
@@ -22,7 +18,7 @@ type BannerProps = React.PropsWithChildren<
   } & BannerContentProps
 >;
 
-const background =
+export const background =
   "bg-muted/20 py-4 px-6 rounded-lg shadow-lg flex items-center justify-between gap-x-4 backdrop-blur-md";
 
 export default function Banner(props: BannerProps) {
@@ -88,6 +84,7 @@ type BannerTriggersProps = {
   buttons?: ButtonProps[];
   asChild?: boolean;
 };
+
 const _buttons: BannerTriggersProps["buttons"] = [
   { children: "Show Me", variant: "outline", type: "button", size: "sm" },
   { children: "Got it", variant: "default", type: "submit", size: "sm" },
@@ -122,22 +119,46 @@ function BannerTriggers(props: React.PropsWithChildren<BannerTriggersProps>) {
   );
 }
 
-function ShowMeButton({ btn, ...rest }: { btn?: ButtonProps }) {
+export function BannerOptions({
+  tags,
+}: {
+  tags: NecessaryTrackingTagsTupleArrays;
+}) {
+  const titles = ["Necessary", "Analytics"]; // @TODO: add support for 3rd party tags
+  const cookies = JSON.parse(
+    getCookie("app-consent") || "{}"
+  ) as BrowserCookies;
+
+  const options = {
+    ...NECESSARY_TAGS.reduce((acc: any, tag: string) => {
+      acc[tag as keyof typeof acc] = {
+        ...tagDetails[tag as keyof typeof tagDetails],
+        checked: cookies[tag as keyof typeof cookies],
+      };
+      return acc as AllOptions;
+    }, {}),
+    ...ANALYTICS_TAGS.reduce((acc: any, tag: string) => {
+      acc[tag as keyof typeof acc] = {
+        ...tagDetails[tag as keyof typeof tagDetails],
+        checked: cookies[tag as keyof typeof cookies],
+      };
+      return acc as AllOptions;
+    }, {}),
+  };
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button {...btn} {...rest} />
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        side="top"
-        className={cn("relative ", background, "w-full")}
-      >
-        <div className="absolute rotate-[270deg] -left-[2.2rem] pt-3 top-[3.3rem] opacity-90 z-0 drop-shadow-md">
-          <p>Transparency</p>
-        </div>
-        <BannerOptions options={[]} />
-      </PopoverContent>
-    </Popover>
+    <div className="grid gap-4 min-w-2xl p-2 bg-background/40 backdrop-blur-md rounded-md z-10">
+      {tags.map((tagGroup, index) => {
+        return (
+          <GroupedOptions
+            key={index}
+            tagGroup={tagGroup}
+            options={options}
+            description=""
+            tags={tags}
+            category={titles[index]}
+          />
+        );
+      })}
+    </div>
   );
 }
