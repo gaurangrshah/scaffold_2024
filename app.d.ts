@@ -1,3 +1,19 @@
+type BannerProps = React.PropsWithChildren<
+  {
+    bannerClass?: string;
+    asChild?: boolean;
+    buttonGroup?: React.ReactNode;
+    leftElement?: React.ReactNode;
+  } & BannerContentProps
+>;
+
+type BannerContentProps = React.PropsWithChildren<{
+  heading?: string;
+  description?: string;
+  href?: string;
+  label?: string;
+}>;
+
 type CookieCategory = "primary" | "secondary";
 
 type NecessaryTags =
