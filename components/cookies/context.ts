@@ -20,6 +20,14 @@ export const GoogleTagManagerDispatch = createContext<{
   sendGTMEvent: () => {},
 });
 
+export const GoogleTagManagerConsent = createContext<{
+  enabled: boolean;
+  hasConsent: boolean;
+}>({
+  enabled: false,
+  hasConsent: false,
+});
+
 export function useGTM() {
   const context = useContext(GoogleTagManagerContext);
   if (context === undefined) {
@@ -35,6 +43,16 @@ export function useGTMDispatch() {
   if (context === undefined) {
     throw new Error(
       "useGoogleTagManagerDispatch must be used within a GoogleTagManagerProvider"
+    );
+  }
+  return context;
+}
+
+export function useGTMConsent() {
+  const context = useContext(GoogleTagManagerConsent);
+  if (context === undefined) {
+    throw new Error(
+      "useGoogleTagManagerConsent must be used within a GoogleTagManagerProvider"
     );
   }
   return context;

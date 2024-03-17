@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
-// import GoogleTagManagerWrapper from "../components/cookies/tag-mgr";
 import GoogleTagManagerProvider from "@/components/cookies/tag-mgr";
+import Banner from "../components/cookies/banner";
 
 export default function Providers({ children }: PropsWithChildren<{}>) {
   return (
@@ -18,6 +18,7 @@ export default function Providers({ children }: PropsWithChildren<{}>) {
           "ad_personalization",
           // "ad_user_data",
         ]}
+        banner={Banner}
       >
         {children}
       </GoogleTagManagerProvider>

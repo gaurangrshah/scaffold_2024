@@ -14,6 +14,20 @@ type BannerContentProps = React.PropsWithChildren<{
   label?: string;
 }>;
 
+type BannerTriggersProps = {
+  buttons?: ButtonProps[];
+  asChild?: boolean;
+};
+
+type ButtonGroupProps = React.PropsWithChildren<
+  {
+    asChild?: boolean;
+  } & BannerTriggersProps
+>;
+
+type Permission = { [key: string]: boolean };
+type PermissionResult = { [key: string]: "granted" | "denied" };
+
 type CookieCategory = "primary" | "secondary";
 
 type NecessaryTags =

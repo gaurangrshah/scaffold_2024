@@ -10,31 +10,20 @@ import { getCookie } from "cookies-next";
 import { sendGTMEvent, GoogleTagManager } from "@next/third-parties/google";
 
 import {
-  CONSENT_COOKIE_NAME,
   setConsentCookies,
-  TAG_MANAGER_KEY,
-  DATA_LAYER,
-  NECESSARY_TAGS,
-  ANALYTICS_TAGS,
-  cookieExpiry,
   gtagFn,
   getInitialPermissions,
-  redactionCookie,
   convertCookieToConsent,
   checkNecessaryTags,
   checkTargetingTags,
   convertTagsToCookies,
-} from "@/components/cookies/utils";
+} from "@/components/cookies/utils/consent-utils";
 import {
   GoogleTagManagerContext,
   GoogleTagManagerDispatch,
 } from "@/components/cookies/context";
-import dynamic from "next/dynamic";
-
-const DynamicBanner = dynamic(() => import("@/components/cookies/banner"), {
-  ssr: false,
-});
-
+import { Slot } from "@radix-ui/react-slot";
+import { ANALYTICS_TAGS, CONSENT_COOKIE_NAME, DATA_LAYER, NECESSARY_TAGS, TAG_MANAGER_KEY, cookieExpiry, redactionCookie } from "./utils/constants";
 // type AdditionalTags<T extends string> = T[]; // @TODO: add support for additional tags
 
 export default function GoogleTagManagerProvider<T>({
@@ -47,7 +36,7 @@ export default function GoogleTagManagerProvider<T>({
   redact = true,
   dataLayerName = DATA_LAYER,
   gtagName = TAG_MANAGER_KEY,
-
+  banner,
   children,
 }: PropsWithChildren<{
   consentCookie: string;
@@ -59,9 +48,13 @@ export default function GoogleTagManagerProvider<T>({
   redact?: boolean;
   dataLayerName?: string;
   gtagName?: string;
+  banner?: React.ComponentType<BannerProps>;
 }>) {
   // has consent starts off as true. If the user has not provided initialConsent, then the
   // we use the layoutEffect
+
+  const Comp = banner ? banner : Slot;
+
   const cookies = JSON.parse(getCookie(consentCookie) || "{}");
   const [hasConsent, setHasConsent] = useState<boolean>(
     enabled && !!Object.keys(cookies).length
@@ -141,7 +134,7 @@ export default function GoogleTagManagerProvider<T>({
             dataLayerName={dataLayerName}
           />
         ) : (
-          <DynamicBanner />
+          <Comp />
         )}
       </GoogleTagManagerDispatch.Provider>
     </GoogleTagManagerContext.Provider>

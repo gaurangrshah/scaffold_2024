@@ -1,59 +1,70 @@
 "use client";
 
-import { useGTM, useGTMDispatch } from "@/components/cookies/context";
-import { Button, ButtonProps } from "../ui/button";
-import { BannerOptions, background } from "./banner";
-import { Switch } from "../ui/switch";
-import { Label } from "../ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { getCookie } from "cookies-next";
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
+import { useGTMDispatch } from "@/components/cookies/context";
 
-export function ShowMeButton({ btn, ...rest }: { btn?: ButtonProps }) {
-  const { tags } = useGTM();
+import { cn } from "@/lib/utils";
+import { NECESSARY_TAGS, ANALYTICS_TAGS, tagDetails } from "./utils/consent-utils";
+
+export function BannerOptions({
+  tags,
+}: {
+  tags: NecessaryTrackingTagsTupleArrays;
+}) {
+  const titles = ["Necessary", "Analytics"]; // @TODO: add support for 3rd party tags
+  const cookies = JSON.parse(
+    getCookie("app-consent") || "{}"
+  ) as BrowserCookies;
+
+  const options = {
+    ...NECESSARY_TAGS.reduce((acc: any, tag: string) => {
+      acc[tag as keyof typeof acc] = {
+        ...tagDetails[tag as keyof typeof tagDetails],
+        checked: cookies[tag as keyof typeof cookies],
+      };
+      return acc as AllOptions;
+    }, {}),
+    ...ANALYTICS_TAGS.reduce((acc: any, tag: string) => {
+      acc[tag as keyof typeof acc] = {
+        ...tagDetails[tag as keyof typeof tagDetails],
+        checked: cookies[tag as keyof typeof cookies],
+      };
+      return acc as AllOptions;
+    }, {}),
+  };
   return (
-    <Popover defaultOpen>
-      <PopoverTrigger asChild>
-        <Button {...btn} {...rest} />
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        side="top"
-        className={cn("relative, w-[500px] ", background)}
-      >
-        <div className="absolute rotate-[270deg] -left-[2.2rem] pt-3 top-[3.5rem] opacity-90 z-0 drop-shadow-md flex gap-2">
-          <p>Transparency</p>
-        </div>
-        <BannerOptions tags={tags} />
-      </PopoverContent>
-    </Popover>
+    <div className="grid gap-4 min-w-2xl p-2 bg-background/40 backdrop-blur-md rounded-md z-10">
+      {tags.map((tagGroup, index) => {
+        return (
+          <GroupedOptions
+            key={index}
+            tagGroup={tagGroup}
+            options={options}
+            category={titles[index]}
+          />
+        );
+      })}
+    </div>
   );
 }
-
 export function GroupedOptions({
-  description,
   isDisabled,
-  defaultValue,
   className,
-  tags,
   tagGroup,
   category,
   options,
 }: {
-  description: string;
   isDisabled?: boolean;
-  defaultValue?: boolean;
   className?: string;
-  tags: NecessaryTrackingTagsTupleArrays;
   tagGroup: TagArray<NecessaryTags> | TagArray<TrackingTags> | undefined;
   category: string;
   options: AllOptions;
