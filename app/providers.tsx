@@ -1,11 +1,12 @@
 import { PropsWithChildren } from "react";
-import GoogleTagManagerProvider from "@/components/cookies/tag-mgr";
-import Banner from "../components/cookies/banner";
+import CookieConsentProvider from "@/components/consent/consent-manager";
+import Banner from "../components/consent/ui/banner";
 
 export default function Providers({ children }: PropsWithChildren<{}>) {
   return (
     <>
-      <GoogleTagManagerProvider
+      {children}
+      <CookieConsentProvider
         consentCookie="app-consent"
         necessaryTags={[
           "security_storage",
@@ -19,9 +20,7 @@ export default function Providers({ children }: PropsWithChildren<{}>) {
           // "ad_user_data",
         ]}
         banner={Banner}
-      >
-        {children}
-      </GoogleTagManagerProvider>
+      />
     </>
   );
 }

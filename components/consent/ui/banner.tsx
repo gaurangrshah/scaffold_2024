@@ -1,19 +1,27 @@
 "use client";
+// directive applied because this gets passed in as a prop to the consent manager.
 
 import Link from "next/link";
 import { Slot } from "@radix-ui/react-slot";
 import { Cookie } from "lucide-react";
 
+import { BannerTriggerGroup } from "./buttons";
 import { cn } from "@/lib/utils";
-import { BannerTriggerGroup } from "./banner-buttons";
 
 export const background =
   "bg-muted/20 py-4 px-6 rounded-lg shadow-lg flex items-center justify-between gap-x-4 backdrop-blur-md";
 
 export default function Banner(props: BannerProps) {
-  const { asChild, leftElement, buttonGroup, bannerClass, ...rest } = props;
+  const {
+    asChild,
+    leftElement,
+    buttonGroup,
+    bannerClass,
+    hasConsent,
+    ...rest
+  } = props;
 
-  const ContentSlot = asChild ? Slot : BannerContent;
+  const ContentSlot = asChild ? Slot : !hasConsent ? BannerContent : Slot;
   const btnGroup = buttonGroup ? buttonGroup : <BannerTriggerGroup />;
   const lefty = leftElement ? leftElement : <Cookie className="w-8 h-8" />;
 

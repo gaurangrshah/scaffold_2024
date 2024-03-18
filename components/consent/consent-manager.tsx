@@ -6,32 +6,39 @@ import {
   useCallback,
   useLayoutEffect,
 } from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { getCookie } from "cookies-next";
 import { sendGTMEvent, GoogleTagManager } from "@next/third-parties/google";
 
 import {
+  ConsentManager,
+  ConsentDispatch,
+} from "@/components/consent/context/consent-manager";
+import {
   setConsentCookies,
   gtagFn,
   getInitialPermissions,
-  convertCookieToConsent,
+  ANALYTICS_TAGS,
+  CONSENT_COOKIE_NAME,
+  DATA_LAYER,
+  NECESSARY_TAGS,
+  TAG_MANAGER_KEY,
+  cookieExpiry,
   checkNecessaryTags,
   checkTargetingTags,
+  convertCookieToConsent,
   convertTagsToCookies,
-} from "@/components/cookies/utils/consent-utils";
-import {
-  GoogleTagManagerContext,
-  GoogleTagManagerDispatch,
-} from "@/components/cookies/context";
-import { Slot } from "@radix-ui/react-slot";
-import { ANALYTICS_TAGS, CONSENT_COOKIE_NAME, DATA_LAYER, NECESSARY_TAGS, TAG_MANAGER_KEY, cookieExpiry, redactionCookie } from "./utils/constants";
+  redactionCookie,
+  handlers,
+} from "./utils";
+
 // type AdditionalTags<T extends string> = T[]; // @TODO: add support for additional tags
 
-export default function GoogleTagManagerProvider<T>({
+export default function CookieConsentProvider({
   consentCookie = CONSENT_COOKIE_NAME, // the name of the cookie that stores the user's consent
   necessaryTags,
   analyticsTags,
-  // additionalTags, // @TODO: add support for additional tags
-  enabled = true,
+  enabled = false,
   expiry = cookieExpiry,
   redact = true,
   dataLayerName = DATA_LAYER,
@@ -42,7 +49,6 @@ export default function GoogleTagManagerProvider<T>({
   consentCookie: string;
   necessaryTags: NecessaryTags[];
   analyticsTags?: TrackingTags[];
-  // additionalTags?: AdditionalTags<string>; // @TODO: add support for additional tags
   enabled?: boolean;
   expiry?: number;
   redact?: boolean;
@@ -50,16 +56,17 @@ export default function GoogleTagManagerProvider<T>({
   gtagName?: string;
   banner?: React.ComponentType<BannerProps>;
 }>) {
-  // has consent starts off as true. If the user has not provided initialConsent, then the
-  // we use the layoutEffect
-
-  const Comp = banner ? banner : Slot;
-
-  const cookies = JSON.parse(getCookie(consentCookie) || "{}");
+  const cookies = JSON.parse(getCookie(consentCookie) || "{}"); // used by layoutEffect + hasConsent initializer
   const [hasConsent, setHasConsent] = useState<boolean>(
-    enabled && !!Object.keys(cookies).length
+    enabled
+    // has consent starts off as equal to enabled value
+    // we use the layoutEffect to check if the user has provided consent.
   );
   const [selectedKeys] = useState<NecessaryTrackingTagsTupleArrays>(() => {
+    console.log("🚀 | hasConsent:", hasConsent);
+    console.log("🚀 | hasConsent:", hasConsent);
+    console.log("🚀 | hasConsent:", hasConsent);
+    // coerce tags into selectedKeys shape
     const hasNecessaryTags = necessaryTags && checkNecessaryTags(necessaryTags);
     const hasAnalyticsTags = analyticsTags && checkTargetingTags(analyticsTags);
 
@@ -70,6 +77,7 @@ export default function GoogleTagManagerProvider<T>({
   });
 
   useLayoutEffect(() => {
+    if (!enabled) return;
     const gtag = gtagFn(DATA_LAYER, TAG_MANAGER_KEY);
     if (typeof gtag === "function") {
       // set the default consent based on the user provided initialConsent
@@ -82,10 +90,11 @@ export default function GoogleTagManagerProvider<T>({
       redact && gtag("set", redactionCookie, true);
 
       setHasConsent(!!Object.keys(cookies).length);
+      handlers.onSuccess("Transparency: GTM has been initialized");
     } else {
+      handlers.onError("Transparency: GTM could not be initialized");
       throw new Error("Transparency: GTM requires gtag function to be defined");
     }
-    // layout effect should only run when these dependencies change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, necessaryTags, redact]);
 
@@ -101,32 +110,36 @@ export default function GoogleTagManagerProvider<T>({
 
   const handleConsentUpdate = useCallback(
     (consentUpdate: Partial<Consent["primary" | "secondary"]>) => {
-      setHasConsent(true);
-      const _cookies = JSON.parse(getCookie(consentCookie) || "{}");
+      try {
+        setHasConsent(true);
+        const _cookies = JSON.parse(getCookie(consentCookie) || "{}");
 
-      const _updatedCookie = {
-        ...convertTagsToCookies(selectedKeys),
-        ..._cookies,
-        ...consentUpdate,
-      };
+        const _updatedCookie = {
+          ...convertTagsToCookies(selectedKeys),
+          ..._cookies,
+          ...consentUpdate,
+        };
 
-      // update the consent cookie
-      setConsentCookies(_updatedCookie, consentCookie, expiry);
-      // transform_updatedCookie  to consent
-      const consent = convertCookieToConsent(_updatedCookie);
-      // update the consent in GTM
-      updateGTMConsent(consent);
+        // update the consent cookie
+        setConsentCookies(_updatedCookie, consentCookie, expiry);
+        // transform_updatedCookie  to consent
+        const consent = convertCookieToConsent(_updatedCookie);
+        // update the consent in GTM
+        updateGTMConsent(consent);
+        handlers.onSuccess("Transparency: Consent updated");
+      } catch (error) {
+        handlers.onError("Transparency: Consent could not be updated");
+        console.error(error);
+      }
     },
     [consentCookie, expiry, updateGTMConsent, selectedKeys]
   );
 
+  const Comp = banner ? banner : Slot;
+
   return (
-    <GoogleTagManagerContext.Provider
-      value={{ tags: selectedKeys, consentCookie }}
-    >
-      <GoogleTagManagerDispatch.Provider
-        value={{ handleConsentUpdate, sendGTMEvent }}
-      >
+    <ConsentManager.Provider value={{ tags: selectedKeys, consentCookie }}>
+      <ConsentDispatch.Provider value={{ handleConsentUpdate, sendGTMEvent }}>
         {children}
         {enabled && hasConsent ? (
           <GoogleTagManager
@@ -134,10 +147,10 @@ export default function GoogleTagManagerProvider<T>({
             dataLayerName={dataLayerName}
           />
         ) : (
-          <Comp />
+          !hasConsent && <Comp hasConsent={hasConsent} />
         )}
-      </GoogleTagManagerDispatch.Provider>
-    </GoogleTagManagerContext.Provider>
+      </ConsentDispatch.Provider>
+    </ConsentManager.Provider>
   );
 }
 /**
