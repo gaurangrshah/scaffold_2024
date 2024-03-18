@@ -1,15 +1,4 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/PmwTvNfrVgf
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-import dynamic from 'next/dynamic';
 import Link from "next/link";
-import Banner  from "@/components/cookies/banner";
-
-const DynamicBanner = dynamic(() => import('@/components/cookies/banner'), {
-  ssr: false,
-});
 
 export default function LandingPage() {
   return (
@@ -165,7 +154,6 @@ export default function LandingPage() {
           </Link>
         </nav>
       </footer>
-      <DynamicBanner />
     </div>
   );
 }

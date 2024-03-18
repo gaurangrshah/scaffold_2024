@@ -1,10 +1,28 @@
 import { PropsWithChildren } from "react";
-import GoogleTagManagerWrapper from "./tag-mgr";
+import CookieConsentProvider from "@/components/consent/consent-manager";
+import Banner from "../components/consent/ui/banner";
+import { Toaster } from "sonner";
 
 export default function Providers({ children }: PropsWithChildren<{}>) {
   return (
     <>
-      <GoogleTagManagerWrapper>{children}</GoogleTagManagerWrapper>
+      {children}
+      <CookieConsentProvider
+        consentCookie="app-consent"
+        necessaryTags={[
+          "security_storage",
+          "functionality_storage",
+          // "personalization_storage",
+        ]}
+        analyticsTags={[
+          "ad_storage",
+          "analytics_storage",
+          "ad_personalization",
+          // "ad_user_data",
+        ]}
+        banner={Banner}
+      />
+      <Toaster />the 
     </>
   );
 }
