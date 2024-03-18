@@ -36,40 +36,40 @@ type NecessaryTags =
   | "personalization_storage"
   | "security_storage";
 
-type TrackingTags =
+type AnalyticsTags =
   | "ad_storage"
   | "analytics_storage"
   | "ad_personalization"
   | "ad_user_data";
 
 type NecessaryCookies = Record<NecessaryTags, boolean>;
-type TrackingCookies = Record<TrackingTags, boolean>;
-type EitherCookiesType = NecessaryCookies | TrackingCookies;
+type AnalyticsCookies = Record<AnalyticsTags, boolean>;
+type EitherCookiesType = NecessaryCookies | AnalyticsCookies;
 type Consent = {
   primary: NecessaryCookies;
-  secondary: TrackingCookies;
+  secondary: AnalyticsCookies;
 };
 
-type CookieConsent = Record<NecessaryTags | TrackingTags, boolean>;
+type CookieConsent = Record<NecessaryTags | AnalyticsTags, boolean>;
 
 type TagDetails = {
-  [key in NecessaryTags | TrackingTags]: {
+  [key in NecessaryTags | AnalyticsTags]: {
     label: string;
     description: string;
   };
 };
 
 // key array expects a tuple of primary and secondary keys
-type TagArray<T extends NecessaryTags | TrackingTags> = T[]; // Array of type T (either PKeys or SKeys)
-type NecessaryTrackingTagsTupleArrays = [
+type TagArray<T extends NecessaryTags | AnalyticsTags> = T[]; // Array of type T (either PKeys or SKeys)
+type NecessaryAnalyticsTagsTupleArrays = [
   TagArray<NecessaryTags> | undefined,
-  TagArray<TrackingTags> | undefined,
+  TagArray<AnalyticsTags> | undefined,
 ];
 
-type BrowserCookies = NecessaryCookies & TrackingCookies;
+type BrowserCookies = NecessaryCookies & AnalyticsCookies;
 
 type AllOptions = {
-  [key in NecessaryTags | TrackingTags]: {
+  [key in NecessaryTags | AnalyticsTags]: {
     label: string;
     description: string;
     checked: boolean;

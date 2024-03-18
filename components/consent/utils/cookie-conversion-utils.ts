@@ -13,7 +13,7 @@ export function convertCookieToConsent(cookie: CookieConsent) {
     ...Object.fromEntries(
       Object.entries(cookie).map(([key, value]) => [key, getConsent(value)])
     ),
-  } as Record<NecessaryTags | TrackingTags, "granted" | "denied">;
+  } as Record<NecessaryTags | AnalyticsTags, "granted" | "denied">;
 }
 
 
@@ -24,7 +24,7 @@ export function convertCookieToConsent(cookie: CookieConsent) {
  * @return {*}  {Permission}
  */
 export function convertTagsToCookies(
-  selectedTags: NecessaryTrackingTagsTupleArrays
+  selectedTags: NecessaryAnalyticsTagsTupleArrays
 ): Permission {
   const permissionResult: Permission = {};
 

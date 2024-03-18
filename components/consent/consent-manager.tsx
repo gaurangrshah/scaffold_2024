@@ -38,7 +38,7 @@ export default function CookieConsentProvider({
   consentCookie = CONSENT_COOKIE_NAME, // the name of the cookie that stores the user's consent
   necessaryTags,
   analyticsTags,
-  enabled = false,
+  enabled = true,
   expiry = cookieExpiry,
   redact = true,
   dataLayerName = DATA_LAYER,
@@ -48,7 +48,7 @@ export default function CookieConsentProvider({
 }: PropsWithChildren<{
   consentCookie: string;
   necessaryTags: NecessaryTags[];
-  analyticsTags?: TrackingTags[];
+  analyticsTags?: AnalyticsTags[];
   enabled?: boolean;
   expiry?: number;
   redact?: boolean;
@@ -62,10 +62,7 @@ export default function CookieConsentProvider({
     // has consent starts off as equal to enabled value
     // we use the layoutEffect to check if the user has provided consent.
   );
-  const [selectedKeys] = useState<NecessaryTrackingTagsTupleArrays>(() => {
-    console.log("🚀 | hasConsent:", hasConsent);
-    console.log("🚀 | hasConsent:", hasConsent);
-    console.log("🚀 | hasConsent:", hasConsent);
+  const [selectedKeys] = useState<NecessaryAnalyticsTagsTupleArrays>(() => {
     // coerce tags into selectedKeys shape
     const hasNecessaryTags = necessaryTags && checkNecessaryTags(necessaryTags);
     const hasAnalyticsTags = analyticsTags && checkTargetingTags(analyticsTags);
@@ -99,7 +96,7 @@ export default function CookieConsentProvider({
   }, [enabled, necessaryTags, redact]);
 
   const updateGTMConsent = useCallback(
-    (consent: Record<NecessaryTags | TrackingTags, "granted" | "denied">) => {
+    (consent: Record<NecessaryTags | AnalyticsTags, "granted" | "denied">) => {
       const gTag = gtagFn(dataLayerName, gtagName);
       if (typeof gTag === "function") {
         gTag("consent", "update", consent);
@@ -146,9 +143,9 @@ export default function CookieConsentProvider({
             gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!}
             dataLayerName={dataLayerName}
           />
-        ) : (
-          !hasConsent && <Comp hasConsent={hasConsent} />
-        )}
+        ) : enabled ? (
+          <Comp hasConsent={hasConsent} />
+        ) : null}
       </ConsentDispatch.Provider>
     </ConsentManager.Provider>
   );

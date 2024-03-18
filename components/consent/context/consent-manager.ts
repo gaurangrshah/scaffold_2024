@@ -3,7 +3,7 @@ import { createContext } from "react";
 export const ConsentManager = createContext<
   | {
       consentCookie: string;
-      tags: NecessaryTrackingTagsTupleArrays;
+      tags: NecessaryAnalyticsTagsTupleArrays;
     }
   | undefined
 >(undefined);

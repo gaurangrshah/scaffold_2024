@@ -25,10 +25,10 @@ export function checkNecessaryTags(tags: NecessaryTags[]) {
  * Check if the user has opted out of all tracking tags
  * This will return a warning if the user has opted out of all tracking tags
  *
- * @param {TrackingTags[]} tags
+ * @param {AnalyticsTags[]} tags
  * @return {*}
  */
-export function checkTargetingTags(tags: TrackingTags[]) {
+export function checkTargetingTags(tags: AnalyticsTags[]) {
   if (!tags.length || !Array.isArray(tags)) {
     console.warn(
       "You have opted out of all tracking tags. Please ensure that this was intentional."

@@ -19,7 +19,7 @@ export function GroupedOptions({
 }: {
   isDisabled?: boolean;
   className?: string;
-  tagGroup: TagArray<NecessaryTags> | TagArray<TrackingTags> | undefined;
+  tagGroup: TagArray<NecessaryTags> | TagArray<AnalyticsTags> | undefined;
   category: string;
   options: AllOptions;
 }) {
@@ -73,7 +73,7 @@ export function GroupedOptions({
               </h4>
             </AccordionTrigger>
             <AccordionContent className="min-w-2xl pl-9">
-              {tagGroup?.map((tag: NecessaryTags | TrackingTags) => {
+              {tagGroup?.map((tag: NecessaryTags | AnalyticsTags) => {
                 const details = options[tag];
                 return (
                   <Option

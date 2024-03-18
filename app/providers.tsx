@@ -1,6 +1,7 @@
 import { PropsWithChildren } from "react";
 import CookieConsentProvider from "@/components/consent/consent-manager";
 import Banner from "../components/consent/ui/banner";
+import { Toaster } from "sonner";
 
 export default function Providers({ children }: PropsWithChildren<{}>) {
   return (
@@ -21,6 +22,7 @@ export default function Providers({ children }: PropsWithChildren<{}>) {
         ]}
         banner={Banner}
       />
+      <Toaster />the 
     </>
   );
 }
