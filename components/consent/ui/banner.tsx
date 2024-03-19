@@ -17,11 +17,11 @@ export default function Banner(props: BannerProps) {
     leftElement,
     buttonGroup,
     bannerClass,
-    hasConsent,
+    hasConsented,
     ...rest
   } = props;
 
-  const ContentSlot = asChild ? Slot : !hasConsent ? BannerContent : Slot;
+  const ContentSlot = asChild ? Slot : !hasConsented ? BannerContent : Slot;
   const btnGroup = buttonGroup ? buttonGroup : <BannerTriggerGroup />;
   const lefty = leftElement ? leftElement : <Cookie className="w-8 h-8" />;
 

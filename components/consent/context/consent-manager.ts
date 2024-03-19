@@ -13,9 +13,11 @@ export const ConsentDispatch = createContext<{
     consentUpdate: Partial<Consent["primary" | "secondary"]>
   ) => void;
   sendGTMEvent: (event: string, data: Record<string, string>) => void;
+  setHasConsent: (hasConsent: boolean) => void;
 }>({
   handleConsentUpdate: () => {},
   sendGTMEvent: () => {},
+  setHasConsent: () => {},
 });
 
 export const ConsentState = createContext<{

@@ -16,7 +16,6 @@ export function convertCookieToConsent(cookie: CookieConsent) {
   } as Record<NecessaryTags | AnalyticsTags, "granted" | "denied">;
 }
 
-
 /**
  * Convert the user provided tags into a cookie object
  *
@@ -36,4 +35,35 @@ export function convertTagsToCookies(
     }
   }
   return permissionResult;
+}
+
+export function convertTagsToCheckedState(
+  tags: TagArray<NecessaryTags | AnalyticsTags>,
+  checked: boolean
+) {
+  const permissionResult: Permission = {};
+
+  for (const tag of tags) {
+    permissionResult[tag] = checked;
+  }
+  return permissionResult;
+}
+
+export function categorizeCookies(cookies: Consent) {
+  const primary = {} as Record<NecessaryTags, boolean>;
+  const secondary = {} as Record<AnalyticsTags, boolean>;
+
+  for (const cookie in cookies) {
+    if (NECESSARY_TAGS.includes(cookie)) {
+      // @ts-ignore
+      primary[cookie as keyof typeof primary] = cookies[cookie];
+    } else {
+      // @ts-ignore
+      secondary[cookie as keyof typeof secondary] = cookies[cookie];
+    }
+  }
+
+  console.log({primary, secondary})
+
+  return { primary, secondary } as Consent;
 }

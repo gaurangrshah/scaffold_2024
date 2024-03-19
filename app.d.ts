@@ -1,6 +1,6 @@
 type BannerProps = React.PropsWithChildren<
   {
-    hasConsent: boolean;
+    hasConsented: boolean;
     bannerClass?: string;
     asChild?: boolean;
     buttonGroup?: React.ReactNode;

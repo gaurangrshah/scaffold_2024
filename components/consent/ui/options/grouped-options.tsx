@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +11,8 @@ import { Label } from "../../../ui/label";
 import { Option } from "./option";
 
 import { cn } from "@/lib/utils";
+import { useConsentDispatch } from "../../context/hooks";
+import { convertTagsToCheckedState } from "../..";
 
 export function GroupedOptions({
   isDisabled,
@@ -23,6 +27,7 @@ export function GroupedOptions({
   category: string;
   options: AllOptions;
 }) {
+  const { handleConsentUpdate } = useConsentDispatch();
   const categoryDescriptions = {
     Necessary: "These cookies are essential for the website to function",
     Analytics:
@@ -57,6 +62,11 @@ export function GroupedOptions({
                 }}
                 disabled={isDisabled}
                 defaultChecked={isCategoryChecked}
+                onCheckedChange={(checked) => {
+                  handleConsentUpdate(
+                    convertTagsToCheckedState(tagGroup!, checked)
+                  );
+                }}
               />
               <div className="w-full">
                 <Label htmlFor={category} className="text-lg leading-9">
@@ -82,6 +92,7 @@ export function GroupedOptions({
                     label={details.label}
                     description={details.description}
                     defaultValue={details.checked}
+                    isDisabled={isDisabled}
                   />
                 );
               })}

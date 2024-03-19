@@ -108,7 +108,6 @@ export default function CookieConsentProvider({
   const handleConsentUpdate = useCallback(
     (consentUpdate: Partial<Consent["primary" | "secondary"]>) => {
       try {
-        setHasConsent(true);
         const _cookies = JSON.parse(getCookie(consentCookie) || "{}");
 
         const _updatedCookie = {
@@ -136,7 +135,9 @@ export default function CookieConsentProvider({
 
   return (
     <ConsentManager.Provider value={{ tags: selectedKeys, consentCookie }}>
-      <ConsentDispatch.Provider value={{ handleConsentUpdate, sendGTMEvent }}>
+      <ConsentDispatch.Provider
+        value={{ handleConsentUpdate, sendGTMEvent, setHasConsent }}
+      >
         {children}
         {enabled && hasConsent ? (
           <GoogleTagManager
@@ -144,7 +145,7 @@ export default function CookieConsentProvider({
             dataLayerName={dataLayerName}
           />
         ) : enabled ? (
-          <Comp hasConsent={hasConsent} />
+          <Comp hasConsented={hasConsent} />
         ) : null}
       </ConsentDispatch.Provider>
     </ConsentManager.Provider>
