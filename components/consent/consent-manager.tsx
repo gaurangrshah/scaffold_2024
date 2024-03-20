@@ -96,7 +96,7 @@ export default function CookieConsentProvider({
   }, [enabled, necessaryTags, redact]);
 
   const updateGTMConsent = useCallback(
-    (consent: Record<NecessaryTags | AnalyticsTags, "granted" | "denied">) => {
+    (consent: Partial<ConsentResult>) => {
       const gTag = gtagFn(dataLayerName, gtagName);
       if (typeof gTag === "function") {
         gTag("consent", "update", consent);
@@ -106,7 +106,7 @@ export default function CookieConsentProvider({
   );
 
   const handleConsentUpdate = useCallback(
-    (consentUpdate: Partial<Consent["primary" | "secondary"]>) => {
+    (consentUpdate: Partial<BrowserCookies>) => {
       try {
         const _cookies = JSON.parse(getCookie(consentCookie) || "{}");
 

@@ -1,3 +1,10 @@
+type BannerContentProps = React.PropsWithChildren<{
+  heading?: string;
+  description?: string;
+  href?: string;
+  label?: string;
+}>;
+
 type BannerProps = React.PropsWithChildren<
   {
     hasConsented: boolean;
@@ -8,28 +15,14 @@ type BannerProps = React.PropsWithChildren<
   } & BannerContentProps
 >;
 
-type BannerContentProps = React.PropsWithChildren<{
-  heading?: string;
-  description?: string;
-  href?: string;
-  label?: string;
-}>;
-
 type BannerTriggersProps = {
   buttons?: ButtonProps[];
   asChild?: boolean;
 };
 
-type ButtonGroupProps = React.PropsWithChildren<
-  {
-    asChild?: boolean;
-  } & BannerTriggersProps
->;
-
-type Permission = { [key: string]: boolean };
-type PermissionResult = { [key: string]: "granted" | "denied" };
-
-type CookieCategory = "primary" | "secondary";
+type ButtonGroupProps = React.PropsWithChildren<{
+  asChild?: boolean;
+}>;
 
 type NecessaryTags =
   | "functionality_storage"
@@ -42,15 +35,32 @@ type AnalyticsTags =
   | "ad_personalization"
   | "ad_user_data";
 
-type NecessaryCookies = Record<NecessaryTags, boolean>;
-type AnalyticsCookies = Record<AnalyticsTags, boolean>;
-type EitherCookiesType = NecessaryCookies | AnalyticsCookies;
-type Consent = {
-  primary: NecessaryCookies;
-  secondary: AnalyticsCookies;
+type NecessaryCookies = {
+  [key in NecessaryTags]: boolean;
 };
 
-type CookieConsent = Record<NecessaryTags | AnalyticsTags, boolean>;
+type AnalyticsCookies = {
+  [key in AnalyticsTags]: boolean;
+};
+
+type BothCookiesType = NecessaryCookies & AnalyticsCookies;
+
+type BrowserCookies = {
+  [key in NecessaryTags | AnalyticsTags]: boolean;
+};
+
+type CategorizedCookie = {
+  ["necessary"]: {
+    [key in NecessaryTags]: boolean;
+  };
+  ["analytics"]: {
+    [key in AnalyticsTags]: boolean;
+  };
+};
+
+type ConsentResult = {
+  [key in NecessaryTags | AnalyticsTags]: "granted" | "denied";
+};
 
 type TagDetails = {
   [key in NecessaryTags | AnalyticsTags]: {
@@ -65,8 +75,6 @@ type NecessaryAnalyticsTagsTupleArrays = [
   TagArray<NecessaryTags> | undefined,
   TagArray<AnalyticsTags> | undefined,
 ];
-
-type BrowserCookies = NecessaryCookies & AnalyticsCookies;
 
 type AllOptions = {
   [key in NecessaryTags | AnalyticsTags]: {

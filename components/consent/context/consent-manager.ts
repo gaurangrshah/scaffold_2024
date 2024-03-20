@@ -9,9 +9,7 @@ export const ConsentManager = createContext<
 >(undefined);
 
 export const ConsentDispatch = createContext<{
-  handleConsentUpdate: (
-    consentUpdate: Partial<Consent["primary" | "secondary"]>
-  ) => void;
+  handleConsentUpdate: (consentUpdate: Partial<BrowserCookies>) => void;
   sendGTMEvent: (event: string, data: Record<string, string>) => void;
   setHasConsent: (hasConsent: boolean) => void;
 }>({
