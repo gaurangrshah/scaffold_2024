@@ -1,4 +1,4 @@
-import {setCookie } from "cookies-next";
+import { setCookie } from "cookies-next";
 import { cookieExpiry } from "./constants";
 
 /**
@@ -18,11 +18,12 @@ export function getConsent(condition: boolean) {
  * This will add each cookie and its consent value to the app-consent cookie
  *
  * @export
- * @param {Consent} cookies
+ * @param {ConsentResult} cookies
  * @param {string} appCookie
+ * @param {number} customExpiry
  */
 export function setConsentCookies(
-  cookies: Record<string, "granted" | "denied">,
+  cookies: ConsentResult,
   appCookie: string,
   customExpiry?: number
 ) {
@@ -49,15 +50,15 @@ export function setConsentCookies(
 export function getInitialPermissions(
   necessaryTags: string[],
   userTags: string[]
-): PermissionResult {
-  const permissionResult: PermissionResult = {};
+): ConsentResult {
+  const consentResult = {} as ConsentResult;
 
   for (const tag of [...necessaryTags, ...userTags]) {
-    permissionResult[tag] =
+    consentResult[tag as keyof ConsentResult] =
       necessaryTags.includes(tag) && userTags.includes(tag)
         ? "granted"
         : "denied";
   }
 
-  return permissionResult;
+  return consentResult;
 }

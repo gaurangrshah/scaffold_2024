@@ -4,14 +4,16 @@ import { getCookie } from "cookies-next";
 
 import { GroupedOptions } from "./grouped-options";
 
-import { useConsent } from "../../../consent/context/hooks";
+import { useConsent, useConsentDispatch } from "../../../consent/context/hooks";
 import {
   NECESSARY_TAGS,
   ANALYTICS_TAGS,
   tagDetails,
 } from "../../utils/constants";
+import { Button } from "@/components/ui/button";
 
 export function BannerOptions() {
+  const { setHasConsent } = useConsentDispatch();
   const { tags } = useConsent();
   const titles = ["Necessary", "Analytics"]; // @TODO: add support for 3rd party tags
   const cookies = JSON.parse(
@@ -43,9 +45,20 @@ export function BannerOptions() {
             tagGroup={tagGroup}
             options={options}
             category={titles[index]}
+            isDisabled={tagGroup && tagGroup[0] in NECESSARY_TAGS}
           />
         );
       })}
+      <div className="flex flex-row w-full">
+        <Button
+          type="button"
+          size="sm"
+          className="ml-0"
+          onClick={() => setHasConsent(true)}
+        >
+          Done
+        </Button>
+      </div>
     </div>
   );
 }
