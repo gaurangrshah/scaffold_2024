@@ -5,15 +5,17 @@ import { NECESSARY_TAGS } from "./constants";
  * Convert the cookie object to a consent object
  *
  * @export
- * @param {CookieConsent} cookie
+ * @param {BothCookies} cookie
  * @return {*}
  */
-export function convertCookieToConsent(cookie: CookieConsent) {
+export function convertCookieToConsent(
+  cookie: BrowserCookies
+): Partial<ConsentResult> {
   return {
     ...Object.fromEntries(
       Object.entries(cookie).map(([key, value]) => [key, getConsent(value)])
     ),
-  } as Record<NecessaryTags | AnalyticsTags, "granted" | "denied">;
+  };
 }
 
 /**
@@ -24,46 +26,50 @@ export function convertCookieToConsent(cookie: CookieConsent) {
  */
 export function convertTagsToCookies(
   selectedTags: NecessaryAnalyticsTagsTupleArrays
-): Permission {
-  const permissionResult: Permission = {};
+): Partial<BrowserCookies> {
+  const cookies = {} as BrowserCookies;
 
   for (const tags of selectedTags) {
     if (tags?.length) {
       for (const tag of tags) {
-        permissionResult[tag] = NECESSARY_TAGS.includes(tag);
+        if (tag in NECESSARY_TAGS) {
+          cookies[tag] = NECESSARY_TAGS.includes(tag);
+        } else {
+          cookies[tag] = false;
+        }
       }
     }
   }
-  return permissionResult;
+  return cookies;
 }
 
 export function convertTagsToCheckedState(
   tags: TagArray<NecessaryTags | AnalyticsTags>,
   checked: boolean
 ) {
-  const permissionResult: Permission = {};
+  const browserCookies = {} as BrowserCookies;
 
   for (const tag of tags) {
-    permissionResult[tag] = checked;
+    browserCookies[tag] = checked;
   }
-  return permissionResult;
+  return browserCookies;
 }
 
-export function categorizeCookies(cookies: Consent) {
-  const primary = {} as Record<NecessaryTags, boolean>;
-  const secondary = {} as Record<AnalyticsTags, boolean>;
+// export function categorizeCookies(cookies: Consent) {
+//   const necessary = {} as Record<NecessaryTags, boolean>;
+//   const analytics = {} as Record<AnalyticsTags, boolean>;
 
-  for (const cookie in cookies) {
-    if (NECESSARY_TAGS.includes(cookie)) {
-      // @ts-ignore
-      primary[cookie as keyof typeof primary] = cookies[cookie];
-    } else {
-      // @ts-ignore
-      secondary[cookie as keyof typeof secondary] = cookies[cookie];
-    }
-  }
+//   for (const cookie in cookies) {
+//     if (NECESSARY_TAGS.includes(cookie)) {
+//       // @ts-ignore
+//       necessary[cookie as keyof typeof primary] = cookies[cookie];
+//     } else {
+//       // @ts-ignore
+//       analytics[cookie as keyof typeof secondary] = cookies[cookie];
+//     }
+//   }
 
-  console.log({primary, secondary})
+//   console.log({ necessary, analytics });
 
-  return { primary, secondary } as Consent;
-}
+//   return { necessary, analytics } as CategorizedCookie;
+// }
