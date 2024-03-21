@@ -6,8 +6,9 @@
  * not as 'gtag' as expected by the gtag function.
  * This function is a workaround to set up the gtag function on the window
  *
- * @param {string} dataLayerName
- * @param {string} gtagName
+ * @param {string} method
+ * @param {string} [event]
+ * @param {Record<string, any>} [params]
  * @return {*}  {((..._args: any[]) => any)}
  */
 

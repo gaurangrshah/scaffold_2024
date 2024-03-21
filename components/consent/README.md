@@ -87,7 +87,7 @@ A comprehensive cookie consent manager made entirely for next.js v13+.
 
 
 
-> ## Prerequesites
+> ## Prerequisites
 >
 > - Shadcn/ui
 >   - Button

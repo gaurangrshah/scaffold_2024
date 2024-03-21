@@ -2,21 +2,11 @@
 
 import { Slot } from "@radix-ui/react-slot";
 
-import { Button } from "../../../ui/button";
-import { ShowMeButton } from "./show-me-btn";
+import { Button } from "../../../../ui/button";
+import { ShowMeButton } from "../show-me-btn";
 
-import { useConsent, useConsentDispatch } from "../../context/hooks";
-import { convertTagsToCookies } from "../../utils";
-
-export function BannerTriggerGroup(props: ButtonGroupProps) {
-  const ButtonGroupSlot = props.asChild ? Slot : BannerTriggers;
-  return (
-    <div className="flex flex-col md:flex-row gap-y-2 md:gap-x-2">
-      <ButtonGroupSlot {...props}>{props.children}</ButtonGroupSlot>
-    </div>
-  );
-}
-
+import { useConsent, useConsentDispatch } from "../../../context/hooks";
+import { convertTagsToCookies } from "../../../utils";
 const _buttons: BannerTriggersProps["buttons"] = [
   { children: "Show Me", variant: "outline", type: "button", size: "sm" },
   { children: "Got it", variant: "default", type: "submit", size: "sm" },
@@ -24,9 +14,22 @@ const _buttons: BannerTriggersProps["buttons"] = [
 
 const isPro = !(process.env.NEXT_PUBLIC_FEATURE_PRO === "true");
 
-function BannerTriggers(props: React.PropsWithChildren<BannerTriggersProps>) {
+/**
+ * This component renders the trigger buttons for the consent banner.
+ * It orchestrates the rendering of the default buttons and also allows for the addition of custom buttons.
+ * It also allows for the rendering of the buttons directly as children of the component.
+ *
+ * When rendering default buttons or custom configured buttons the component will assign functionality based on the button's index
+ * @export
+ * @type {React.PropsWithChildren<BannerTriggersProps>}
+ * @param  {BannerTriggerProps} { asChild, buttons: ButtonProps[], children, ...rest }
+ * @return {*} {React.ReactNode}
+ */
+export function BannerTriggers(
+  props: React.PropsWithChildren<BannerTriggersProps>
+) {
   const { asChild, buttons, children, ...rest } = props;
-  const { handleConsentUpdate } = useConsentDispatch();
+  const { handleConsentUpdate, setHasConsent } = useConsentDispatch();
   const { tags } = useConsent();
 
   let btns = buttons ?? _buttons;
@@ -52,6 +55,7 @@ function BannerTriggers(props: React.PropsWithChildren<BannerTriggersProps>) {
                 {...btn}
                 {...rest}
                 onClick={() => {
+                  setHasConsent(true);
                   handleConsentUpdate(convertTagsToCookies(tags));
                 }}
               />

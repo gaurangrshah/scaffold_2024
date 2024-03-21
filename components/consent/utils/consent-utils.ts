@@ -6,8 +6,8 @@ import { cookieExpiry } from "./constants";
  * This is a helper function to get the consent value based on the condition
  *
  * @export
- * @param {boolean} condition
- * @return {*}
+ * @param condition {boolean}
+ * @return "granted" | "denied"
  */
 export function getConsent(condition: boolean) {
   return condition ? "granted" : "denied";
@@ -18,9 +18,10 @@ export function getConsent(condition: boolean) {
  * This will add each cookie and its consent value to the app-consent cookie
  *
  * @export
- * @param {ConsentResult} cookies
- * @param {string} appCookie
- * @param {number} customExpiry
+ * @param {ConsentResult} cookies 
+ * @param {string} appCookie 
+ * @param {number} [customExpiry]
+ * @return void {*}
  */
 export function setConsentCookies(
   cookies: ConsentResult,
@@ -41,10 +42,10 @@ export function setConsentCookies(
  * based on the user's consent
  *
  * @export
- * @param {string[]} necessaryTags
- * @param {string[]} userTags
- * @return {*}
- * @example
+ * @param  {string[]} necessaryTags
+ * @param  {string[]} userTags
+ * @return ConsentResult {*}
+ * 
  *
  */
 export function getInitialPermissions(

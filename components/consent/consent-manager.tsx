@@ -32,30 +32,31 @@ import {
   handlers,
 } from "./utils";
 
-// type AdditionalTags<T extends string> = T[]; // @TODO: add support for additional tags
-
-export default function CookieConsentProvider({
-  consentCookie = CONSENT_COOKIE_NAME, // the name of the cookie that stores the user's consent
-  necessaryTags,
-  analyticsTags,
-  enabled = true,
-  expiry = cookieExpiry,
-  redact = true,
-  dataLayerName = DATA_LAYER,
-  gtagName = TAG_MANAGER_KEY,
-  banner,
-  children,
-}: PropsWithChildren<{
-  consentCookie: string;
-  necessaryTags: NecessaryTags[];
-  analyticsTags?: AnalyticsTags[];
-  enabled?: boolean;
-  expiry?: number;
-  redact?: boolean;
-  dataLayerName?: string;
-  gtagName?: string;
-  banner?: React.ComponentType<BannerProps>;
-}>) {
+/**
+ *
+ *
+ * @export
+ * @param {PropsWithChildren<CookieConsentProviderProps>} {
+ *   consentCookie: string, necessaryTags: NecessaryTags[], analyticsTags: AnalyticsTags[], enabled: boolean, expiry: number, redact: boolean, dataLayerName: string, gtagName: string, banner: React.ReactNode, children: React.ReactNode
+ * }
+ * @return {*} {React.ReactNode}
+ */
+export default function CookieConsentProvider(
+  // type AdditionalTags<T extends string> = T[]; // @TODO: add support for additional tags
+  props: PropsWithChildren<CookieConsentProviderProps>
+) {
+  const {
+    consentCookie = CONSENT_COOKIE_NAME, // the name of the cookie that stores the user's consent
+    necessaryTags,
+    analyticsTags,
+    enabled = true,
+    expiry = cookieExpiry,
+    redact = true,
+    dataLayerName = DATA_LAYER,
+    gtagName = TAG_MANAGER_KEY,
+    banner,
+    children,
+  } = props;
   const cookies = JSON.parse(getCookie(consentCookie) || "{}"); // used by layoutEffect + hasConsent initializer
   const [hasConsent, setHasConsent] = useState<boolean>(
     enabled

@@ -12,21 +12,25 @@ import { Option } from "./option";
 
 import { cn } from "@/lib/utils";
 import { useConsentDispatch } from "../../context/hooks";
-import { convertTagsToCheckedState } from "../..";
+import {
+  ANALYTICS_TAGS,
+  NECESSARY_TAGS,
+  convertTagsToCheckedState,
+} from "../../utils";
+import { useBrowserCookies } from "../../hooks/use-cookies";
 
-export function GroupedOptions({
-  isDisabled,
-  className,
-  tagGroup,
-  category,
-  options,
-}: {
-  isDisabled?: boolean;
-  className?: string;
-  tagGroup: TagArray<NecessaryTags> | TagArray<AnalyticsTags> | undefined;
-  category: string;
-  options: AllOptions;
-}) {
+/**
+ * It will receive the categorized options from the BannerOptions component and renders them
+ * with each category toggle and a an accordion, which shows the granular controls.
+ *
+ * @export
+ * @param {GroupedOptionsProps} {
+ *   isDisabled?: boolean; className?: string; currentTagGroup: TagArray<NecessaryTags> | TagArray<AnalyticsTags> | undefined; category: string
+ * }
+ * @return {*} {React.ReactNode}
+ */
+export function GroupedOptions(props: GroupedOptionsProps) {
+  const { isDisabled, className, currentTagGroup, category } = props;
   const { handleConsentUpdate } = useConsentDispatch();
   const categoryDescriptions = {
     Necessary: "These cookies are essential for the website to function",
@@ -34,7 +38,19 @@ export function GroupedOptions({
       "These cookies help us to improve your experience on our website",
   };
 
-  const isCategoryChecked = tagGroup?.every((tag) => options[tag].checked);
+  const { currentCategory } = useBrowserCookies(
+    "app-consent", // @TODO: replace with value from consent manager context
+    [NECESSARY_TAGS, ANALYTICS_TAGS] as NecessaryAnalyticsTagsTupleArrays,
+    category
+  );
+
+  const isCategoryChecked =
+    currentCategory &&
+    Object.keys(currentCategory).every(
+      (option) =>
+        (currentCategory[option as keyof typeof currentCategory] as Option)
+          ?.checked
+    );
   return (
     <div
       className={cn(
@@ -43,6 +59,7 @@ export function GroupedOptions({
       )}
     >
       <div className={cn(isDisabled ? "hover:opacity-40" : "")}>
+        {/* @TODO: show a tooltip around the entire accordion when disabled */}
         <Accordion collapsible type="single">
           <AccordionItem
             value={category}
@@ -64,7 +81,7 @@ export function GroupedOptions({
                 defaultChecked={isCategoryChecked}
                 onCheckedChange={(checked) => {
                   handleConsentUpdate(
-                    convertTagsToCheckedState(tagGroup!, checked)
+                    convertTagsToCheckedState(currentTagGroup!, checked)
                   );
                 }}
               />
@@ -79,23 +96,23 @@ export function GroupedOptions({
             </div>
             <AccordionTrigger>
               <h4 className="w-[400px] text-xs text-right font-semibold text-neutral opacity-70 leading-loose py-1 border rounded pr-2">
-                Show all {category} Cookies
+                View all {category} cookies
               </h4>
             </AccordionTrigger>
             <AccordionContent className="min-w-2xl pl-9">
-              {tagGroup?.map((tag: NecessaryTags | AnalyticsTags) => {
-                const details = options[tag];
-                return (
-                  <Option
-                    key={tag}
-                    tag={tag}
-                    label={details.label}
-                    description={details.description}
-                    defaultValue={details.checked}
-                    isDisabled={isDisabled}
-                  />
-                );
-              })}
+              {currentCategory &&
+                Object.entries(currentCategory)?.map(([option, details]) => {
+                  return (
+                    <Option
+                      key={option}
+                      tag={option}
+                      label={details.label}
+                      description={details.description}
+                      defaultValue={details.checked}
+                      isDisabled={isDisabled}
+                    />
+                  );
+                })}
             </AccordionContent>
           </AccordionItem>
         </Accordion>

@@ -1,12 +1,12 @@
 import { getConsent } from "./consent-utils";
-import { NECESSARY_TAGS } from "./constants";
+import { NECESSARY_TAGS, tagDetails } from "./constants";
 
 /**
  * Convert the cookie object to a consent object
  *
  * @export
- * @param {BothCookies} cookie
- * @return {*}
+ * @param {BrowserCookies} cookie
+ * @return {*} {Partial<ConsentResult>}
  */
 export function convertCookieToConsent(
   cookie: BrowserCookies
@@ -21,7 +21,7 @@ export function convertCookieToConsent(
 /**
  * Convert the user provided tags into a cookie object
  *
- * @param tags  NecessaryTags | TrackingTags
+ * @param {NecessaryAnalyticsTagsTupleArrays} selectedTags
  * @return {*}  {Permission}
  */
 export function convertTagsToCookies(
@@ -42,7 +42,14 @@ export function convertTagsToCookies(
   }
   return cookies;
 }
-
+/**
+ * Convert the user provided tags into a cookie object with the checked state
+ *
+ * @export
+ * @param {(TagArray<NecessaryTags | AnalyticsTags>)} tags
+ * @param {boolean} checked
+ * @return {*} {BrowserCookies}
+ */
 export function convertTagsToCheckedState(
   tags: TagArray<NecessaryTags | AnalyticsTags>,
   checked: boolean
@@ -55,21 +62,53 @@ export function convertTagsToCheckedState(
   return browserCookies;
 }
 
-// export function categorizeCookies(cookies: Consent) {
-//   const necessary = {} as Record<NecessaryTags, boolean>;
-//   const analytics = {} as Record<AnalyticsTags, boolean>;
+/**
+ * Categorize options based on tag category ('necessary' | 'analytics')
+ *
+ * @export
+ * @param {Partial<AllOptions>} cookies
+ * @return {*}
+ */
+export function categorizeOptions(options: Partial<AllOptions>) {
+  const necessary = {} as CategorizedOptions["necessary"];
+  const analytics = {} as CategorizedOptions["analytics"];
 
-//   for (const cookie in cookies) {
-//     if (NECESSARY_TAGS.includes(cookie)) {
-//       // @ts-ignore
-//       necessary[cookie as keyof typeof primary] = cookies[cookie];
-//     } else {
-//       // @ts-ignore
-//       analytics[cookie as keyof typeof secondary] = cookies[cookie];
-//     }
-//   }
+  for (const [key, value] of Object.entries(options)) {
+    if (NECESSARY_TAGS.includes(key)) {
+      necessary[key as keyof typeof necessary] = value;
+    } else {
+      analytics[key as keyof typeof analytics] = value;
+    }
+  }
 
-//   console.log({ necessary, analytics });
+  return { necessary, analytics } as CategorizedOptions;
+}
 
-//   return { necessary, analytics } as CategorizedCookie;
-// }
+/**
+ * Merge the cookie object with the tag details object
+ *
+ * @export
+ * @param {NecessaryAnalyticsTagsTupleArrays} tags
+ * @param {BrowserCookies} cookies
+ * @return {*}  {Partial<AllOptions>}
+ */
+export function mergeCookiesWithTagDetails(
+  tags: NecessaryAnalyticsTagsTupleArrays,
+  cookies: BrowserCookies
+): Partial<AllOptions> {
+  let options = {} as Partial<AllOptions>;
+  for (const tagGroup of tags) {
+    options = {
+      ...options,
+      ...tagGroup?.reduce((acc, tag) => {
+        acc[tag as keyof typeof acc] = {
+          ...tagDetails[tag as keyof typeof tagDetails],
+          checked: !!cookies[tag as keyof typeof cookies],
+        };
+        return acc;
+      }, {} as AllOptions),
+    };
+  }
+
+  return options;
+}

@@ -1,16 +1,27 @@
 "use client";
 // directive applied because this gets passed in as a prop to the consent manager.
 
-import Link from "next/link";
 import { Slot } from "@radix-ui/react-slot";
 import { Cookie } from "lucide-react";
 
 import { BannerTriggerGroup } from "./buttons";
+import { BannerContent } from "./banner-content";
+
+import { background } from "../utils/constants";
 import { cn } from "@/lib/utils";
 
-export const background =
-  "bg-muted/20 py-4 px-6 rounded-lg shadow-lg flex items-center justify-between gap-x-4 backdrop-blur-md";
-
+/**
+ *
+ * Responsible for rendering the shell and defining the structure of the banner components
+ * orchestrates where and how each of the elements are rendered, and is configurable.
+ * uses radix-ui's Slot primitive to facilitate this behavior by default as a wrapper around the children
+ *
+ * @export
+ * @param {BannerProps} props: React.PropsWithChildren<{
+ *   hasConsented: boolean; bannerClass?: string; asChild?: boolean; buttonGroup?: React.ReactNode; leftElement?: React.ReactNode;
+ * }>
+ * @return {*} {React.ReactNode}
+ */
 export default function Banner(props: BannerProps) {
   const {
     asChild,
@@ -32,25 +43,6 @@ export default function Banner(props: BannerProps) {
         <ContentSlot {...rest}>{props.children}</ContentSlot>
         {btnGroup}
       </div>
-    </div>
-  );
-}
-
-function BannerContent(props: BannerContentProps) {
-  return (
-    <div className="flex flex-col justify-center gap-y-2 mr-2 flex-1 text-sm">
-      <strong>{props.heading ?? "Transparency"}</strong>
-      <p className="">
-        {props.description ?? "We use cookies to improve your experience."} By
-        using our site, you agree to our{" "}
-        <Link
-          href={props.href ?? "/privacy"}
-          className="text-primary-500 dark:text-primary-400 hover:underline text-gray-500"
-        >
-          {props.label ?? "privacy policy"}
-        </Link>
-        .
-      </p>
     </div>
   );
 }

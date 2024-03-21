@@ -5,22 +5,24 @@ import { Label } from "../../../ui/label";
 import { useConsentDispatch } from "../../../consent/context/hooks";
 
 import { cn } from "@/lib/utils";
-
-export function Option({
-  label,
-  description,
-  isDisabled,
-  defaultValue,
-  className,
-  tag,
-}: {
-  label: string;
-  description: string;
-  isDisabled?: boolean;
-  defaultValue?: boolean;
-  className?: string;
-  tag: string;
-}) {
+/**
+ * Responsible for rendering the individual granular options and assigning the functionality to sync
+ * with consent-manager context
+ *
+ * @export
+ * @param {OptionProps} {{
+ *   label: string;
+ *   description: string;
+ *   isDisabled?: boolean;
+ *   defaultValue?: boolean;
+ *   className?: string;
+ *   tag: string;
+ * }}
+ * @return {*} {React.ReactNode}
+ */
+export function Option(props: OptionProps) {
+  const { label, description, isDisabled, defaultValue, className, tag } =
+    props;
   const { handleConsentUpdate } = useConsentDispatch();
   return (
     <div

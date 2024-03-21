@@ -24,6 +24,37 @@ type ButtonGroupProps = React.PropsWithChildren<{
   asChild?: boolean;
 }>;
 
+type GroupedOptionsProps = {
+  isDisabled?: boolean;
+  className?: string;
+  currentTagGroup:
+    | TagArray<NecessaryTags>
+    | TagArray<AnalyticsTags>
+    | undefined;
+  category: string;
+};
+
+type OptionProps = {
+  label: string;
+  description: string;
+  isDisabled?: boolean;
+  defaultValue?: boolean;
+  className?: string;
+  tag: string;
+};
+
+type CookieConsentProviderProps = {
+  consentCookie?: string;
+  necessaryTags: NecessaryTags[];
+  analyticsTags?: AnalyticsTags[];
+  enabled?: boolean;
+  expiry?: number;
+  redact?: boolean;
+  dataLayerName?: string;
+  gtagName?: string;
+  banner?: React.ComponentType<BannerProps>;
+};
+
 type NecessaryTags =
   | "functionality_storage"
   | "personalization_storage"
@@ -49,12 +80,20 @@ type BrowserCookies = {
   [key in NecessaryTags | AnalyticsTags]: boolean;
 };
 
-type CategorizedCookie = {
+type Categories = "necessary" | "analytics";
+
+type Option = {
+  label: string;
+  description: string;
+  checked: boolean;
+};
+
+type CategorizedOptions = {
   ["necessary"]: {
-    [key in NecessaryTags]: boolean;
+    [key in NecessaryTags]: Option;
   };
   ["analytics"]: {
-    [key in AnalyticsTags]: boolean;
+    [key in AnalyticsTags]: Option;
   };
 };
 

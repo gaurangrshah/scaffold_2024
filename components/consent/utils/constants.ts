@@ -2,6 +2,9 @@ export const CONSENT_COOKIE_NAME = "app-consent";
 export const DATA_LAYER = "dataLayer";
 export const TAG_MANAGER_KEY = "gtag";
 
+export const background =
+  "bg-muted/20 py-4 px-6 rounded-lg shadow-lg flex items-center justify-between gap-x-4 backdrop-blur-md";
+
 export const NECESSARY_TAGS = [
   "security_storage",
   "functionality_storage",

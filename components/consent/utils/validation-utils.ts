@@ -5,7 +5,7 @@ import { ANALYTICS_TAGS, NECESSARY_TAGS } from "./constants";
  * This will return a warning if the user has opted out of all necessary tags
  *
  * @param {NecessaryTags[]} tags
- * @return {*}
+ * @return {*} {boolean}
  */
 export function checkNecessaryTags(tags: NecessaryTags[]) {
   if (!tags.length || !Array.isArray(tags)) {
@@ -26,7 +26,7 @@ export function checkNecessaryTags(tags: NecessaryTags[]) {
  * This will return a warning if the user has opted out of all tracking tags
  *
  * @param {AnalyticsTags[]} tags
- * @return {*}
+ * @return {*} {boolean}
  */
 export function checkTargetingTags(tags: AnalyticsTags[]) {
   if (!tags.length || !Array.isArray(tags)) {
