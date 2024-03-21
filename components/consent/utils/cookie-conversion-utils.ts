@@ -53,7 +53,7 @@ export function convertTagsToCookies(
 export function convertTagsToCheckedState(
   tags: TagArray<NecessaryTags | AnalyticsTags>,
   checked: boolean
-) {
+):BrowserCookies {
   const browserCookies = {} as BrowserCookies;
 
   for (const tag of tags) {
@@ -69,7 +69,9 @@ export function convertTagsToCheckedState(
  * @param {Partial<AllOptions>} cookies
  * @return {*}
  */
-export function categorizeOptions(options: Partial<AllOptions>) {
+export function categorizeOptions(
+  options: Partial<AllOptions>
+): CategorizedOptions {
   const necessary = {} as CategorizedOptions["necessary"];
   const analytics = {} as CategorizedOptions["analytics"];
 
@@ -81,7 +83,7 @@ export function categorizeOptions(options: Partial<AllOptions>) {
     }
   }
 
-  return { necessary, analytics } as CategorizedOptions;
+  return { necessary, analytics };
 }
 
 /**
