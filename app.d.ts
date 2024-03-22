@@ -41,6 +41,7 @@ type OptionProps = {
   defaultValue?: boolean;
   className?: string;
   tag: string;
+  isCategoryChecked: boolean;
 };
 
 type CookieConsentProviderProps = {
@@ -60,7 +61,7 @@ type Categories = "necessary" | "analytics";
 type Option = {
   label: string;
   description: string;
-  checked: boolean;
+  // checked: boolean;
 };
 
 type CategorizedOptions = {

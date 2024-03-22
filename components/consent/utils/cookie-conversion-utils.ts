@@ -70,7 +70,7 @@ export function convertTagsToCheckedState(
  * @return {*}
  */
 export function categorizeOptions(
-  options: Partial<AllOptions>
+  options: Partial<AllOptions>  | BrowserCookies
 ): CategorizedOptions {
   const necessary = {} as CategorizedOptions["necessary"];
   const analytics = {} as CategorizedOptions["analytics"];
@@ -105,7 +105,7 @@ export function mergeCookiesWithTagDetails(
       ...tagGroup?.reduce((acc, tag) => {
         acc[tag as keyof typeof acc] = {
           ...tagDetails[tag as keyof typeof tagDetails],
-          checked: !!cookies[tag as keyof typeof cookies],
+          // checked: !!cookies[tag as keyof typeof cookies],
         };
         return acc;
       }, {} as AllOptions),

@@ -2,7 +2,6 @@
 
 import { Switch } from "../../../ui/switch";
 import { Label } from "../../../ui/label";
-import { useConsentDispatch } from "../../../consent/context/hooks";
 
 import { cn } from "@/lib/utils";
 /**
@@ -17,13 +16,27 @@ import { cn } from "@/lib/utils";
  *   defaultValue?: boolean;
  *   className?: string;
  *   tag: string;
+ *   isCategoryChecked: boolean;
+ *   setCookieValue: (keys:string[]; value: boolean) => void
  * }}
  * @return {*} {React.ReactNode}
  */
-export function Option(props: OptionProps) {
-  const { label, description, isDisabled, defaultValue, className, tag } =
-    props;
-  const { handleConsentUpdate } = useConsentDispatch();
+export function Option(
+  props: OptionProps & {
+    setCookieValues: (keys: string[], value: boolean) => void;
+  }
+) {
+  const {
+    label,
+    description,
+    isDisabled,
+    defaultValue,
+    className,
+    tag,
+    isCategoryChecked,
+    setCookieValues,
+  } = props;
+
   return (
     <div
       className={cn(
@@ -44,9 +57,9 @@ export function Option(props: OptionProps) {
             "data-[state=checked]:bg-gray-300 data-[state=unchecked]:bg-gray-400",
         }}
         disabled={isDisabled}
-        defaultChecked={defaultValue}
+        defaultChecked={isCategoryChecked ?? defaultValue}
         onCheckedChange={(checked) => {
-          handleConsentUpdate({ [tag]: checked });
+          setCookieValues([tag], checked);
         }}
       />
       <div className={cn(isDisabled ? "hover:opacity-40" : "")}>

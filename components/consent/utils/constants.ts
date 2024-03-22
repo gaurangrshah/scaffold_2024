@@ -49,6 +49,15 @@ export const tagDetails: TagDetails = {
   },
 };
 
+export const categoryDescriptions = {
+  Necessary: "These cookies are essential for the website to function",
+  Analytics:
+    "These cookies help us to improve your experience on our website",
+};
+
+export const titles = ["Necessary", "Analytics"]; // @TODO: add support for 3rd party tags
+
+
 export const redactionCookie = "ads_data_redaction";
 
 export const cookieExpiry = 60 * 60 * 24 * 7; // Set expiration (1 week)

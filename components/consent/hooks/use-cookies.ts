@@ -1,9 +1,10 @@
 import { getCookie, setCookie } from "cookies-next";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   categorizeOptions,
   mergeCookiesWithTagDetails,
 } from "../utils/cookie-conversion-utils";
+import { useConsent, useConsentDispatch } from "../context";
 
 /**
  * Manages the browser cookies for the consent component
@@ -17,7 +18,7 @@ import {
  */
 export function useBrowserCookies(
   cookieName: string,
-  tags: NecessaryAnalyticsTagsTupleArrays,
+  // tags: NecessaryAnalyticsTagsTupleArrays,
   category: string
 ) {
   // @TODO: consume context here and expose results from context
@@ -26,26 +27,42 @@ export function useBrowserCookies(
     return JSON.parse(getCookie(cookieName) || "{}") as BrowserCookies;
   });
 
+  const { tags } = useConsent();
+  const { handleConsentUpdate } = useConsentDispatch();
+
   const setCookieValues = useCallback(
     (keys: string[], value: boolean) => {
-      const newCookies = { ...cookies };
+      const newCookies = {} as BrowserCookies;
       for (const key of keys) {
         newCookies[key as keyof typeof newCookies] = value;
       }
-      setCookie(cookieName, JSON.stringify(newCookies), {
-        maxAge: 365 * 24 * 60 * 60,
-      });
-      setCookies(newCookies);
+      handleConsentUpdate(newCookies);
+      setCookies((prev) => ({ ...prev, ...newCookies }));
     },
-    [cookieName, cookies]
+    [handleConsentUpdate]
   );
 
-  const categorizedOptions = categorizeOptions(
-    mergeCookiesWithTagDetails(tags, cookies)
-  );
+  // const { currentCategory, isCategoryChecked } = useMemo(() => {
+  //   const categorizedOptions = categorizeOptions(
+  //     mergeCookiesWithTagDetails(tags, cookies)
+  //   );
 
-  const currentCategory =
-    categorizedOptions[category as keyof typeof categorizedOptions];
+  //   const currentCategory =
+  //     categorizedOptions[category as keyof typeof categorizedOptions];
 
-  return { currentCategory, cookies, setCookieValues };
+  //   const isCategoryChecked =
+  //     currentCategory &&
+  //     Object.keys(currentCategory).every(
+  //       (option) =>
+  //         (currentCategory[option as keyof typeof currentCategory] as Option)
+  //           ?.checked
+  //     );
+  //   return { currentCategory, isCategoryChecked };
+  // }, [cookies, tags, category]);
+
+  return {
+    // currentCategory, isCategoryChecked,
+    cookies,
+    setCookieValues,
+  };
 }

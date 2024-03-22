@@ -80,6 +80,7 @@ export default function CookieConsentProvider(
     if (typeof gtag === "function") {
       // set the default consent based on the user provided initialConsent
       // if the user has not provided any initialConsent, then the default consent will be set to 'denied' for all tags
+
       const defaultConsent = getInitialPermissions(necessaryTags, [
         ...NECESSARY_TAGS,
         ...ANALYTICS_TAGS,
