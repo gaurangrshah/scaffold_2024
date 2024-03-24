@@ -9,22 +9,19 @@ import { cn } from "@/lib/utils";
  * with consent-manager context
  *
  * @export
- * @param {OptionProps} {{
+ * @param {OptionProps} <{
  *   label: string;
  *   description: string;
  *   isDisabled?: boolean;
  *   defaultValue?: boolean;
  *   className?: string;
- *   tag: string;
  *   isCategoryChecked: boolean;
- *   setCookieValue: (keys:string[]; value: boolean) => void
- * }}
+ *   setCookieValue: (cookieUpdates: Partial<BrowserCookies>) => void
+ * }>
  * @return {*} {React.ReactNode}
  */
 export function Option(
-  props: OptionProps & {
-    setCookieValues: (keys: string[], value: boolean) => void;
-  }
+  props: OptionProps
 ) {
   const {
     label,
@@ -32,7 +29,6 @@ export function Option(
     isDisabled,
     defaultValue,
     className,
-    tag,
     isCategoryChecked,
     setCookieValues,
   } = props;
@@ -58,12 +54,10 @@ export function Option(
         }}
         disabled={isDisabled}
         defaultChecked={isCategoryChecked ?? defaultValue}
-        onCheckedChange={(checked) => {
-          setCookieValues([tag], checked);
-        }}
+        onCheckedChange={setCookieValues}
       />
       <div className={cn(isDisabled ? "hover:opacity-40" : "")}>
-        <Label htmlFor={label} className="text-sm leading-9">
+        <Label htmlFor={label} className="text-sm leading-9 capitalize">
           {label}
         </Label>
         <p className="text-gray-500 dark:text-gray-400 text-xs">

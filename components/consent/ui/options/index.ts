@@ -1,3 +1,3 @@
 export * from './banner-options'
-export * from './grouped-options'
+export * from './nested-options'
 export * from './option'

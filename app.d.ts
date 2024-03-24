@@ -42,6 +42,7 @@ type OptionProps = {
   className?: string;
   tag: string;
   isCategoryChecked: boolean;
+  setCookieValues: (checked: boolean) => void;
 };
 
 type CookieConsentProviderProps = {
@@ -58,19 +59,19 @@ type CookieConsentProviderProps = {
 
 type Categories = "necessary" | "analytics";
 
-type Option = {
+type TagOption = {
   label: string;
   description: string;
-  // checked: boolean;
+  checked: boolean;
 };
 
 type CategorizedOptions = {
   ["necessary"]: {
-    [key in NecessaryTags]: Option;
+    [key in NecessaryTags]: TagOption;
   };
 } & {
   ["analytics"]: {
-    [key in AnalyticsTags]: Option;
+    [key in AnalyticsTags]: TagOption;
   };
 };
 
@@ -86,5 +87,5 @@ type TagDetails = {
 };
 
 type AllOptions = {
-  [key in NecessaryTags | AnalyticsTags]: Option;
+  [key in NecessaryTags | AnalyticsTags]: TagOption;
 };
