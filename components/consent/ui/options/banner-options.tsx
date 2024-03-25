@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
  * @return {*} {React.ReactNode}
  */
 export function BannerOptions() {
-  const { setHasConsent } = useConsentDispatch();
+  const { setHasConsent, handleConsentUpdate } = useConsentDispatch();
   const { tags } = useConsent(); // provide only the options that the user has selected
   const [cookies, setCookies] = useState<BrowserCookies>(() =>
     tags.reduce((acc, tagGroup) => {
@@ -53,8 +53,10 @@ export function BannerOptions() {
         ]);
         return updatedCookies;
       });
+
+      handleConsentUpdate(cookies);
     },
-    [NECESSARY, ANALYTICS]
+    [NECESSARY, ANALYTICS, handleConsentUpdate]
   );
 
   const renderSwitch = (
