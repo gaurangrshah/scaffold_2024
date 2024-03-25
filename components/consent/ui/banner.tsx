@@ -32,16 +32,8 @@ export type BannerProps = React.PropsWithChildren<
  * @return {*} {React.ReactNode}
  */
 export default function Banner(props: BannerProps) {
-  const {
-    asChild,
-    leftElement,
-    buttonGroup,
-    bannerClass,
-    // hasConsented,
-    ...rest
-  } = props;
+  const { asChild, leftElement, buttonGroup, bannerClass, ...rest } = props;
 
-  // const ContentSlot = asChild ? Slot : !hasConsented ? BannerContent : Slot;
   const ContentSlot = asChild ? Slot : BannerContent;
 
   return (

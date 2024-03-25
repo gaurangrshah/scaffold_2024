@@ -68,7 +68,7 @@ export default function CookieConsentProvider(
     banner,
     children,
   } = props;
-  const cookies = JSON.parse(getCookie(consentCookie) || "{}"); // used by layoutEffect + hasConsent initializer
+  const cookies = JSON.parse(getCookie(consentCookie) || "{}");
   const [hasConsent, setHasConsent] = useState<boolean>(
     enabled
     // has consent starts off as equal to enabled value
@@ -105,8 +105,7 @@ export default function CookieConsentProvider(
       handlers.onError("Transparency: GTM could not be initialized");
       throw new Error("Transparency: GTM requires gtag function to be defined");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, necessaryTags, redact]);
+  }, [enabled, necessaryTags, redact, cookies]);
 
   const updateGTMConsent = useCallback(
     (consent: Partial<ConsentResult>) => {
@@ -144,7 +143,8 @@ export default function CookieConsentProvider(
     [consentCookie, expiry, updateGTMConsent, selectedKeys]
   );
 
-  const Comp = banner ? banner : () => null;
+  // makeshift slot component
+  const BannerSlot = enabled && !hasConsent && banner ? banner : () => null;
 
   return (
     <ConsentManager.Provider value={{ tags: selectedKeys, consentCookie }}>
@@ -157,9 +157,9 @@ export default function CookieConsentProvider(
             gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!}
             dataLayerName={dataLayerName}
           />
-        ) : enabled ? (
-          !hasConsent && <Comp />
-        ) : null}
+        ) : (
+          <BannerSlot />
+        )}
       </ConsentDispatch.Provider>
     </ConsentManager.Provider>
   );
