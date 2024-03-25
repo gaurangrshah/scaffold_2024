@@ -18,8 +18,8 @@ export function getConsent(condition: boolean) {
  * This will add each cookie and its consent value to the app-consent cookie
  *
  * @export
- * @param {ConsentResult} cookies 
- * @param {string} appCookie 
+ * @param {ConsentResult} cookies
+ * @param {string} appCookie
  * @param {number} [customExpiry]
  * @return void {*}
  */
@@ -36,29 +36,26 @@ export function setConsentCookies(
 }
 
 /**
- * Compare the necessary tags with the user tags
- * This will return an object with the necessary tags as keys
- * and the value as either "granted" or "denied"
- * based on the user's consent
+ * Compare the necessary tags with the analytics tags
+ * This will return an object where the necessary tags as keys
+ * are all "granted" and the rest are "denied"
  *
  * @export
  * @param  {string[]} necessaryTags
- * @param  {string[]} userTags
+ * @param  {string[]} analyticsTags
  * @return ConsentResult {*}
- * 
  *
  */
 export function getInitialPermissions(
   necessaryTags: string[],
-  userTags: string[]
+  analyticsTags: string[]
 ): ConsentResult {
   const consentResult = {} as ConsentResult;
 
-  for (const tag of [...necessaryTags, ...userTags]) {
-    consentResult[tag as keyof ConsentResult] =
-      necessaryTags.includes(tag) && userTags.includes(tag)
-        ? "granted"
-        : "denied";
+  for (const tag of [...necessaryTags, ...analyticsTags]) {
+    consentResult[tag as keyof ConsentResult] = necessaryTags.includes(tag)
+      ? "granted"
+      : "denied";
   }
 
   return consentResult;
