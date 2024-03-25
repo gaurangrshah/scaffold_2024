@@ -5,10 +5,20 @@ import { Slot } from "@radix-ui/react-slot";
 import { Cookie } from "lucide-react";
 
 import { BannerTriggerGroup } from "./buttons";
-import { BannerContent } from "./banner-content";
+import { BannerContent, type IBannerContentProps } from "./banner-content";
 
 import { background } from "../utils/constants";
 import { cn } from "@/lib/utils";
+
+export type BannerProps = React.PropsWithChildren<
+  {
+    hasConsented: boolean;
+    bannerClass?: string;
+    asChild?: boolean;
+    buttonGroup?: React.ReactNode;
+    leftElement?: React.ReactNode;
+  } & IBannerContentProps
+>;
 
 /**
  *

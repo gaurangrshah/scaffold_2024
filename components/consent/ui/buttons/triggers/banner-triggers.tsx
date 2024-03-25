@@ -2,11 +2,17 @@
 
 import { Slot } from "@radix-ui/react-slot";
 
-import { Button } from "../../../../ui/button";
+import { Button, type ButtonProps } from "../../../../ui/button";
 import { ShowMeButton } from "../show-me-btn";
 
 import { useConsent, useConsentDispatch } from "../../../context/hooks";
 import { convertTagsToCookies } from "../../../utils";
+
+export type BannerTriggersProps = {
+  buttons?: ButtonProps[];
+  asChild?: boolean;
+};
+
 const _buttons: BannerTriggersProps["buttons"] = [
   { children: "Show Me", variant: "outline", type: "button", size: "sm" },
   { children: "Got it", variant: "default", type: "submit", size: "sm" },

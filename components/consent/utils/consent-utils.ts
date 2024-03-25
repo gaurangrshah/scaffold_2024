@@ -1,6 +1,8 @@
 import { setCookie } from "cookies-next";
 import { cookieExpiry } from "./constants";
 
+// Each of these utils are used by the consent manager component
+
 /**
  * GTM expected consent format is an enum of 'granted' or 'denied'
  * This is a helper function to get the consent value based on the condition

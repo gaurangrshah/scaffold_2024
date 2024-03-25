@@ -12,12 +12,6 @@
  * @return {*}  {((..._args: any[]) => any)}
  */
 
-export type GTagFn = (
-  method: string,
-  event?: string,
-  params?: Record<string, any>
-) => void;
-
 export const gtagFn = (
   dataLayerName: string | undefined,
   gtagName: string | undefined

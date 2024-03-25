@@ -1,5 +1,7 @@
 import { ANALYTICS_TAGS, NECESSARY_TAGS } from "./constants";
 
+// These utils are used by consent manager component to validate the tags that the user has opted out of
+
 /**
  * Check if the user has opted out of all necessary tags
  * This will return a warning if the user has opted out of all necessary tags

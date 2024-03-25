@@ -1,5 +1,12 @@
 import Link from "next/link";
 
+export interface IBannerContentProps extends React.PropsWithChildren {
+  heading?: string;
+  description?: string;
+  href?: string;
+  label?: string;
+}
+
 /**
  * Responsible for rendering the content inside the banner shell
  * takes in 4 key static props: {heading, description, href, label}
@@ -10,7 +17,7 @@ import Link from "next/link";
  * }>
  * @return {*} {React.ReactNode}
  */
-export function BannerContent(props: BannerContentProps) {
+export function BannerContent(props: IBannerContentProps) {
   return (
     <div className="flex flex-col justify-center gap-y-2 mr-2 flex-1 text-sm">
       <strong>{props.heading ?? "Transparency"}</strong>

@@ -1,29 +1,3 @@
-type BannerContentProps = React.PropsWithChildren<{
-  heading?: string;
-  description?: string;
-  href?: string;
-  label?: string;
-}>;
-
-type BannerProps = React.PropsWithChildren<
-  {
-    hasConsented: boolean;
-    bannerClass?: string;
-    asChild?: boolean;
-    buttonGroup?: React.ReactNode;
-    leftElement?: React.ReactNode;
-  } & BannerContentProps
->;
-
-type BannerTriggersProps = {
-  buttons?: ButtonProps[];
-  asChild?: boolean;
-};
-
-type ButtonGroupProps = React.PropsWithChildren<{
-  asChild?: boolean;
-}>;
-
 type CookieConsentProviderProps = {
   consentCookie?: string;
   necessaryTags: NecessaryTags[];

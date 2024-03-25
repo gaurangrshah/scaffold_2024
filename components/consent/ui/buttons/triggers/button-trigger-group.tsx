@@ -1,6 +1,9 @@
 import { Slot } from "@radix-ui/react-slot";
 import { BannerTriggers } from "./banner-triggers";
 
+type ButtonGroupProps = React.PropsWithChildren<{
+  asChild?: boolean;
+}>;
 
 /**
  * Used as a default button group wrapper around the consent banner's interaction buttons
