@@ -1,14 +1,4 @@
-type CookieConsentProviderProps = {
-  consentCookie?: string;
-  necessaryTags: NecessaryTags[];
-  analyticsTags?: AnalyticsTags[];
-  enabled?: boolean;
-  expiry?: number;
-  redact?: boolean;
-  dataLayerName?: string;
-  gtagName?: string;
-  banner?: React.ComponentType<BannerProps>;
-};
+
 
 type Categories = "necessary" | "analytics";
 

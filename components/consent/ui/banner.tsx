@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 
 export type BannerProps = React.PropsWithChildren<
   {
-    hasConsented: boolean;
     bannerClass?: string;
     asChild?: boolean;
     buttonGroup?: React.ReactNode;
@@ -28,7 +27,7 @@ export type BannerProps = React.PropsWithChildren<
  *
  * @export
  * @param {BannerProps} props: React.PropsWithChildren<{
- *   hasConsented: boolean; bannerClass?: string; asChild?: boolean; buttonGroup?: React.ReactNode; leftElement?: React.ReactNode;
+ *   bannerClass?: string; asChild?: boolean; buttonGroup?: React.ReactNode; leftElement?: React.ReactNode;
  * }>
  * @return {*} {React.ReactNode}
  */
@@ -38,20 +37,19 @@ export default function Banner(props: BannerProps) {
     leftElement,
     buttonGroup,
     bannerClass,
-    hasConsented,
+    // hasConsented,
     ...rest
   } = props;
 
-  const ContentSlot = asChild ? Slot : !hasConsented ? BannerContent : Slot;
-  const btnGroup = buttonGroup ? buttonGroup : <BannerTriggerGroup />;
-  const lefty = leftElement ? leftElement : <Cookie className="w-8 h-8" />;
+  // const ContentSlot = asChild ? Slot : !hasConsented ? BannerContent : Slot;
+  const ContentSlot = asChild ? Slot : BannerContent;
 
   return (
     <div className="fixed inset-x-0 bottom-10 max-w-3xl z-10 mx-auto">
       <div className={cn(background, bannerClass)}>
-        {lefty}
+        {leftElement ? leftElement : <Cookie className="w-8 h-8" />}
         <ContentSlot {...rest}>{props.children}</ContentSlot>
-        {btnGroup}
+        {buttonGroup ? buttonGroup : <BannerTriggerGroup />}
       </div>
     </div>
   );

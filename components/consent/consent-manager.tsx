@@ -6,7 +6,6 @@ import {
   useCallback,
   useLayoutEffect,
 } from "react";
-import { Slot } from "@radix-ui/react-slot";
 import { getCookie } from "cookies-next";
 import { sendGTMEvent, GoogleTagManager } from "@next/third-parties/google";
 
@@ -31,6 +30,18 @@ import {
   redactionCookie,
   handlers,
 } from "./utils";
+
+type CookieConsentProviderProps = {
+  consentCookie?: string;
+  necessaryTags: NecessaryTags[];
+  analyticsTags?: AnalyticsTags[];
+  enabled?: boolean;
+  expiry?: number;
+  redact?: boolean;
+  dataLayerName?: string;
+  gtagName?: string;
+  banner?: React.ElementType;
+};
 
 /**
  *
@@ -133,7 +144,7 @@ export default function CookieConsentProvider(
     [consentCookie, expiry, updateGTMConsent, selectedKeys]
   );
 
-  const Comp = banner ? banner : Slot;
+  const Comp = banner ? banner : () => null;
 
   return (
     <ConsentManager.Provider value={{ tags: selectedKeys, consentCookie }}>
@@ -147,7 +158,7 @@ export default function CookieConsentProvider(
             dataLayerName={dataLayerName}
           />
         ) : enabled ? (
-          <Comp hasConsented={hasConsent} />
+          !hasConsent && <Comp />
         ) : null}
       </ConsentDispatch.Provider>
     </ConsentManager.Provider>
