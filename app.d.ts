@@ -24,25 +24,6 @@ type ButtonGroupProps = React.PropsWithChildren<{
   asChild?: boolean;
 }>;
 
-type GroupedOptionsProps = {
-  isDisabled?: boolean;
-  className?: string;
-  currentTagGroup:
-    | TagArray<NecessaryTags>
-    | TagArray<AnalyticsTags>
-    | undefined;
-  category: string;
-};
-
-type OptionProps = {
-  label: string;
-  description: string;
-  isDisabled?: boolean;
-  defaultValue?: boolean;
-  className?: string;
-  tag: string;
-};
-
 type CookieConsentProviderProps = {
   consentCookie?: string;
   necessaryTags: NecessaryTags[];
@@ -55,34 +36,9 @@ type CookieConsentProviderProps = {
   banner?: React.ComponentType<BannerProps>;
 };
 
-type NecessaryTags =
-  | "functionality_storage"
-  | "personalization_storage"
-  | "security_storage";
-
-type AnalyticsTags =
-  | "ad_storage"
-  | "analytics_storage"
-  | "ad_personalization"
-  | "ad_user_data";
-
-type NecessaryCookies = {
-  [key in NecessaryTags]: boolean;
-};
-
-type AnalyticsCookies = {
-  [key in AnalyticsTags]: boolean;
-};
-
-type BothCookiesType = NecessaryCookies & AnalyticsCookies;
-
-type BrowserCookies = {
-  [key in NecessaryTags | AnalyticsTags]: boolean;
-};
-
 type Categories = "necessary" | "analytics";
 
-type Option = {
+type TagOption = {
   label: string;
   description: string;
   checked: boolean;
@@ -90,10 +46,11 @@ type Option = {
 
 type CategorizedOptions = {
   ["necessary"]: {
-    [key in NecessaryTags]: Option;
+    [key in NecessaryTags]: TagOption;
   };
+} & {
   ["analytics"]: {
-    [key in AnalyticsTags]: Option;
+    [key in AnalyticsTags]: TagOption;
   };
 };
 
@@ -108,17 +65,6 @@ type TagDetails = {
   };
 };
 
-// key array expects a tuple of primary and secondary keys
-type TagArray<T extends NecessaryTags | AnalyticsTags> = T[]; // Array of type T (either PKeys or SKeys)
-type NecessaryAnalyticsTagsTupleArrays = [
-  TagArray<NecessaryTags> | undefined,
-  TagArray<AnalyticsTags> | undefined,
-];
-
 type AllOptions = {
-  [key in NecessaryTags | AnalyticsTags]: {
-    label: string;
-    description: string;
-    checked: boolean;
-  };
+  [key in NecessaryTags | AnalyticsTags]: TagOption;
 };
