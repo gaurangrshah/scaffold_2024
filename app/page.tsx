@@ -22,7 +22,7 @@ export default function LandingPage() {
                     size={"lg"}
                     className="p-8 mb-8 md:mb-0 text-2xl w-full sm:w-fit border-t-2 rounded-full border-[#4D4D4D] bg-[#1F1F1F] hover:bg-white group transition-all flex items-center justify-center gap-4 hover:shadow-xl hover:shadow-neutral-500 duration-500"
                   >
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-neutral-500 to-neutral-600  md:text-center font-sans group-hover:bg-gradient-to-r group-hover:from-black goup-hover:to-black">
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-neutral-500 to-neutral-600  md:text-center font-sans group-hover:bg-gradient-to-r group-hover:from-black group-hover:to-black">
                       Start For Free Today
                     </span>
                   </Button>
@@ -36,7 +36,7 @@ export default function LandingPage() {
         </div>
       </section>
       <InfiniteMovingCards
-        className="md:mt-[18rem] mt-[-100px]"
+        className="md:mt-[18rem] mt-[-100px] mx-auto"
         items={clients}
         direction="right"
         speed="slow"
@@ -47,7 +47,7 @@ export default function LandingPage() {
       <section className="mt-[-500px]">
         <LampComponent />
         <div className="flex flex-wrap items-center justify-center flex-col md:flex-row gap-8 -mt-72">
-        <CardContainer className="inter-var ">
+          <CardContainer className="inter-var ">
             <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-neutral-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full md:!w-[350px] h-auto rounded-xl p-6 border">
               <CardItem
                 translateZ="50"
