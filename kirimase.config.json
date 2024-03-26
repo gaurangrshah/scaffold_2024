@@ -1,7 +1,8 @@
 {
   "hasSrc": false,
   "packages": [
-    "shadcn-ui"
+    "shadcn-ui",
+    "prisma"
   ],
   "preferredPackageManager": "pnpm",
   "t3": false,
@@ -9,5 +10,7 @@
   "analytics": true,
   "rootPath": "",
   "componentLib": "shadcn-ui",
-  "auth": null
+  "auth": null,
+  "orm": "prisma",
+  "driver": "pg"
 }
