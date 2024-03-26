@@ -7,9 +7,7 @@ export const metadata: Metadata = {
   title: "Fuzzie",
   description: "Automate your work with Fuzzie.",
 };
-
 const font = DM_Sans({ subsets: ["latin"] });
-
 export default function RootLayout({
   children,
 }: Readonly<{
