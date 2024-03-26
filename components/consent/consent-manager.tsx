@@ -29,6 +29,7 @@ import {
   convertTagsToCookies,
   redactionCookie,
   handlers,
+  type ConsentResult,
 } from "./utils";
 
 type CookieConsentProviderProps = {
@@ -147,7 +148,7 @@ export default function CookieConsentProvider(
   const BannerSlot = enabled && !hasConsent && banner ? banner : () => null;
 
   return (
-    <ConsentManager.Provider value={{ tags: selectedKeys, consentCookie }}>
+    <ConsentManager.Provider value={{ tags: selectedKeys, consentCookie, hasConsent }}>
       <ConsentDispatch.Provider
         value={{ handleConsentUpdate, sendGTMEvent, setHasConsent }}
       >

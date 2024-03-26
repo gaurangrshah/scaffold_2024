@@ -1,10 +1,13 @@
+// Consent mgr constants
 export const CONSENT_COOKIE_NAME = "app-consent";
 export const DATA_LAYER = "dataLayer";
 export const TAG_MANAGER_KEY = "gtag";
 
-export const background =
-  "bg-muted/20 py-4 px-6 rounded-lg shadow-lg flex items-center justify-between gap-x-4 backdrop-blur-md";
+export const redactionCookie = "ads_data_redaction";
 
+export const cookieExpiry = 60 * 60 * 24 * 7; // Set expiration (1 week)
+
+// Consent categories
 export const NECESSARY_TAGS = [
   "security_storage",
   "functionality_storage",
@@ -17,6 +20,24 @@ export const ANALYTICS_TAGS = [
   "ad_personalization",
   "ad_user_data",
 ];
+
+// UI constants
+export const background =
+  "bg-muted/20 py-4 px-6 rounded-lg shadow-lg flex items-center justify-between gap-x-4 backdrop-blur-md";
+
+export const _buttons = [
+  { children: "Show Me", variant: "outline", type: "button", size: "sm" },
+  { children: "Got it", variant: "default", type: "submit", size: "sm" },
+];
+
+export const isPro = !(process.env.NEXT_PUBLIC_FEATURE_PRO === "true");
+
+type TagDetails = {
+  [key in NecessaryTags | AnalyticsTags]: {
+    label: string;
+    description: string;
+  };
+};
 
 export const tagDetails: TagDetails = {
   security_storage: {
@@ -53,7 +74,3 @@ export const categoryDescriptions = {
   necessary: "These cookies are essential for the website to function",
   analytics: "These cookies help us to improve your experience on our website",
 };
-
-export const redactionCookie = "ads_data_redaction";
-
-export const cookieExpiry = 60 * 60 * 24 * 7; // Set expiration (1 week)

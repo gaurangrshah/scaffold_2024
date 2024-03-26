@@ -1,7 +1,7 @@
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
-type CookieSwitchProps = {
+interface ICookieSwitchProps {
   type: "category" | "tag";
   label: string;
   description: string;
@@ -10,7 +10,7 @@ type CookieSwitchProps = {
   onCheckedChange: (checked: boolean) => void; // Function to update cookie state
   className?: string;
   isChecked: boolean;
-};
+}
 
 export function CookieSwitch({
   type,
@@ -21,7 +21,7 @@ export function CookieSwitch({
   onCheckedChange,
   className,
   isChecked,
-}: React.PropsWithChildren<CookieSwitchProps>) {
+}: React.PropsWithChildren<ICookieSwitchProps>) {
   const isCategory = type === "category";
   const { id } = {
     id: isCategory ? label.toLowerCase() : cookieName,

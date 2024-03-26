@@ -4,6 +4,7 @@ export const ConsentManager = createContext<
   | {
       consentCookie: string;
       tags: NecessaryAnalyticsTagsTupleArrays;
+      hasConsent: boolean;
     }
   | undefined
 >(undefined);

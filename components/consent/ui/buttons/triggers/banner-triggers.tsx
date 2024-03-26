@@ -6,19 +6,12 @@ import { Button, type ButtonProps } from "../../../../ui/button";
 import { ShowMeButton } from "../show-me-btn";
 
 import { useConsent, useConsentDispatch } from "../../../context/hooks";
-import { convertTagsToCookies } from "../../../utils";
+import { _buttons, convertTagsToCookies, isPro } from "../../../utils";
 
-export type BannerTriggersProps = {
+export interface IBannerTriggersProps {
   buttons?: ButtonProps[];
   asChild?: boolean;
-};
-
-const _buttons: BannerTriggersProps["buttons"] = [
-  { children: "Show Me", variant: "outline", type: "button", size: "sm" },
-  { children: "Got it", variant: "default", type: "submit", size: "sm" },
-];
-
-const isPro = !(process.env.NEXT_PUBLIC_FEATURE_PRO === "true");
+}
 
 /**
  * This component renders the trigger buttons for the consent banner.
@@ -28,17 +21,17 @@ const isPro = !(process.env.NEXT_PUBLIC_FEATURE_PRO === "true");
  * When rendering default buttons or custom configured buttons the component will assign functionality based on the button's index
  * @export
  * @type {React.PropsWithChildren<BannerTriggersProps>}
- * @param  {BannerTriggerProps} { asChild, buttons: ButtonProps[], children, ...rest }
+ * @param  {BannerTriggerProps} { asChild, buttons: ButtonProps[], children }
  * @return {*} {React.ReactNode}
  */
 export function BannerTriggers(
-  props: React.PropsWithChildren<BannerTriggersProps>
+  props: React.PropsWithChildren<IBannerTriggersProps>
 ) {
-  const { asChild, buttons, children, ...rest } = props;
+  const { asChild, buttons, children } = props;
   const { handleConsentUpdate, setHasConsent } = useConsentDispatch();
   const { tags } = useConsent();
 
-  let btns = buttons ?? _buttons;
+  let btns = buttons ?? (_buttons as ButtonProps[]);
   if (btns && btns.length > 2) {
     btns.length = 2; // removes all buttons after the 2nd
     console.log(btns);
@@ -59,7 +52,6 @@ export function BannerTriggers(
               <Button
                 key={i}
                 {...btn}
-                {...rest}
                 onClick={() => {
                   setHasConsent(true);
                   handleConsentUpdate(convertTagsToCookies(tags));

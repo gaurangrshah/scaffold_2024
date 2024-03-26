@@ -10,14 +10,13 @@ import { BannerContent, type IBannerContentProps } from "./banner-content";
 import { background } from "../utils/constants";
 import { cn } from "@/lib/utils";
 
-export type BannerProps = React.PropsWithChildren<
-  {
-    bannerClass?: string;
-    asChild?: boolean;
-    buttonGroup?: React.ReactNode;
-    leftElement?: React.ReactNode;
-  } & IBannerContentProps
->;
+export interface IBannerProps
+  extends React.PropsWithChildren<IBannerContentProps> {
+  bannerClass?: string;
+  asChild?: boolean;
+  buttonGroup?: React.ReactNode;
+  leftElement?: React.ReactNode;
+}
 
 /**
  *
@@ -31,7 +30,7 @@ export type BannerProps = React.PropsWithChildren<
  * }>
  * @return {*} {React.ReactNode}
  */
-export default function Banner(props: BannerProps) {
+export default function Banner(props: IBannerProps) {
   const { asChild, leftElement, buttonGroup, bannerClass, ...rest } = props;
 
   const ContentSlot = asChild ? Slot : BannerContent;

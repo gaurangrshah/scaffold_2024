@@ -2,15 +2,18 @@
 
 import { useCallback, useState } from "react";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { CookieSwitch } from "./cookie-switch";
 
 import { useConsent, useConsentDispatch } from "../../../consent/context/hooks";
-import {
-  NECESSARY_TAGS,
-  categoryDescriptions,
-  tagDetails,
-} from "../../utils/constants";
+import { categoryDescriptions, tagDetails } from "../../utils/constants";
+import { convertTagsToCookies } from "../../utils";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,14 +25,9 @@ import { cn } from "@/lib/utils";
  */
 export function BannerOptions() {
   const { setHasConsent, handleConsentUpdate } = useConsentDispatch();
-  const { tags } = useConsent(); // provide only the options that the user has selected
-  const [cookies, setCookies] = useState<BrowserCookies>(() =>
-    tags.reduce((acc, tagGroup) => {
-      tagGroup?.forEach((tag) => {
-        acc[tag] = !!NECESSARY_TAGS.includes(tag);
-      });
-      return acc;
-    }, {} as BrowserCookies)
+  const { tags, hasConsent } = useConsent(); // provide only the options that the user has selected
+  const [cookies, setCookies] = useState<Partial<BrowserCookies>>(() =>
+    convertTagsToCookies(tags as NecessaryAnalyticsTagsTupleArrays)
   );
 
   const [NECESSARY, ANALYTICS] = tags;
@@ -68,7 +66,7 @@ export function BannerOptions() {
     const isDisabled = category === "Necessary";
 
     return (
-      <div key={category}>
+      <div key={category} className="p-2">
         <CookieSwitch
           type="category"
           label={category}
@@ -89,42 +87,60 @@ export function BannerOptions() {
           }}
           isChecked={!!isChecked[index]}
         />
-        {Array.isArray(tagGroup) &&
-          tagGroup.map((tag) => {
-            return (
-              <CookieSwitch
-                type="tag"
-                key={tag}
-                className="ml-4"
-                {...tagDetails[tag as keyof typeof tagDetails]}
-                isDisabled={isDisabled}
-                cookieName={tagGroup[index]}
-                onCheckedChange={(checked) => {
-                  updateCookiesState({ [tag]: checked });
-                }}
-                isChecked={cookies[tag as keyof typeof cookies]}
-              />
-            );
-          })}
+        <Accordion type="single" collapsible>
+          <AccordionItem value={category}>
+            <AccordionTrigger className="text-xs">
+              <p className="ml-auto pr-2">
+                Show all {category.toLowerCase()} cookies
+              </p>
+            </AccordionTrigger>
+            <AccordionContent>
+              <>
+                {Array.isArray(tagGroup) &&
+                  tagGroup.map((tag) => {
+                    return (
+                      <CookieSwitch
+                        type="tag"
+                        key={tag}
+                        className="ml-4"
+                        {...tagDetails[tag as keyof typeof tagDetails]}
+                        isDisabled={isDisabled}
+                        cookieName={tagGroup[index]}
+                        onCheckedChange={(checked) => {
+                          updateCookiesState({ [tag]: checked });
+                        }}
+                        isChecked={cookies[tag as keyof typeof cookies]!}
+                      />
+                    );
+                  })}
+              </>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     );
   };
 
   return (
-    <div className="grid gap-4 min-w-2xl p-2 bg-background/40 backdrop-blur-md rounded-md z-10">
+    <div className="grid gap-4 min-w-2xl">
       <div
         className={cn(
-          "w-full pl-1 py-2 pt-2 [&:not(:first-child)]:border-t transition-opacity duration-150"
+          "w-full p-2 bg-background/40 backdrop-blur-md rounded-md z-10 [&:not(:first-child)]:border-t transition-opacity duration-150"
         )}
       >
         {tags.map(renderSwitch)}
       </div>
-      <div className="flex flex-row w-full p-4">
+      <div className="flex flex-row w-full p-1">
         <Button
           type="button"
           size="sm"
           className="ml-auto"
-          onClick={() => setHasConsent(true)}
+          onClick={() => {
+            if (!hasConsent) {
+              handleConsentUpdate(cookies);
+              setHasConsent(true);
+            }
+          }}
         >
           Done
         </Button>

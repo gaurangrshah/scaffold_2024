@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
-import { Button, ButtonProps } from "../../../ui/button";
+import { Button, type ButtonProps } from "../../../ui/button";
 import { background } from "../../utils/constants";
 import { BannerOptions } from "./../options";
 
@@ -12,14 +12,14 @@ import { cn } from "@/lib/utils";
  * @type {React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants>, {asChild?: Boolean}}
  *
  * @export
- * @param {ButtonProps} { btn?: {...HTMLButtonProps, variant, asChild } }
+ * @param {ButtonProps} {...HTMLButtonProps, variant, asChild }
  * @return {*} {React.ReactNode}
  */
-export function ShowMeButton({ btn, ...rest }: { btn?: ButtonProps }) {
+export function ShowMeButton({ ...rest }: ButtonProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button {...btn} {...rest} onClick={console.log} />
+        <Button {...rest} onClick={console.log} />
       </PopoverTrigger>
       <PopoverContent
         align="end"

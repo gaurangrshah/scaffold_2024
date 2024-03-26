@@ -13,15 +13,11 @@ type ButtonGroupProps = React.PropsWithChildren<{
  * @param {ButtonGroupProps} {asChild?: boolean | undefined, children: React.ReactNode}
  * @return {*}
  */
-export function BannerTriggerGroup({
-  asChild,
-  children,
-  ...rest
-}: ButtonGroupProps) {
+export function BannerTriggerGroup({ asChild, children }: ButtonGroupProps) {
   const ButtonGroupSlot = asChild ? Slot : BannerTriggers;
   return (
     <div className="flex flex-col md:flex-row gap-y-2 md:gap-x-2">
-      <ButtonGroupSlot {...rest}>{children}</ButtonGroupSlot>
+      <ButtonGroupSlot>{children}</ButtonGroupSlot>
     </div>
   );
 }

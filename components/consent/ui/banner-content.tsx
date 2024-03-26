@@ -23,12 +23,12 @@ export function BannerContent(props: IBannerContentProps) {
       <strong>{props.heading ?? "Transparency"}</strong>
       <p className="">
         {props.description ?? "We use cookies to improve your experience."} By
-        using our site, you agree to our{" "}
+        using our site, you agree to the terms outlined in our{" "}
         <Link
-          href={props.href ?? "/privacy"}
+          href={props.href ?? "/policies/cookies"}
           className="text-primary-500 dark:text-primary-400 hover:underline text-gray-500"
         >
-          {props.label ?? "privacy policy"}
+          {props.label ?? "cookie policy"}
         </Link>
         .
       </p>

@@ -37,6 +37,10 @@ export function setConsentCookies(
   }
 }
 
+export type ConsentResult = {
+  [key in NecessaryTags | AnalyticsTags]: "granted" | "denied";
+};
+
 /**
  * Compare the necessary tags with the analytics tags
  * This will return an object where the necessary tags as keys

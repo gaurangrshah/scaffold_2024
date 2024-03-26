@@ -1,5 +1,5 @@
-import { getConsent } from "./consent-utils";
-import { NECESSARY_TAGS, tagDetails } from "./constants";
+import { type ConsentResult, getConsent } from "./consent-utils";
+import { NECESSARY_TAGS } from "./constants";
 
 /**
  * Convert the cookie object to a consent object
@@ -32,11 +32,7 @@ export function convertTagsToCookies(
   for (const tags of selectedTags) {
     if (tags?.length) {
       for (const tag of tags) {
-        if (tag in NECESSARY_TAGS) {
-          cookies[tag] = NECESSARY_TAGS.includes(tag);
-        } else {
-          cookies[tag] = false;
-        }
+        cookies[tag] = !!NECESSARY_TAGS.includes(tag);
       }
     }
   }
