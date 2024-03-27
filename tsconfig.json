@@ -29,7 +29,8 @@
         "./prisma/zod/index"
       ]
     },
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "types": ["@uploadcare/blocks/types/jsx"]
   },
   "include": [
     "next-env.d.ts",
@@ -39,5 +40,6 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+
 }
