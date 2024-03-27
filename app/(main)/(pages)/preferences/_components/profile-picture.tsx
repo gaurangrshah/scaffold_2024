@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 type Props = {
   userImage: string | null;
@@ -29,7 +30,9 @@ export const ProfilePicture = ({ userImage, onDelete, onUpload }: Props) => {
         {userImage ? (
           <>
             <div className="relative h-full w-2/12">
-              <Image src={userImage} alt="User_Image" fill />
+              <AspectRatio ratio={1 / 1}>
+                <Image src={userImage} alt="User_Image" fill />
+              </AspectRatio>
             </div>
             <Button
               onClick={onRemoveProfileImage}
