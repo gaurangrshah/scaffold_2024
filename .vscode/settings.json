@@ -3,5 +3,6 @@
     "Fuzzie",
     "scroller",
     "tsparticles"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

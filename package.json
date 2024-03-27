@@ -14,6 +14,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@clerk/nextjs": "^4.29.9",
     "@hookform/resolvers": "^3.3.4",
     "@prisma/client": "5.11.0",
     "@radix-ui/react-avatar": "^1.0.4",
