@@ -1,5 +1,5 @@
 import { ProfileForm } from "@/components/forms/profile-form";
-// import ProfilePicture from './_components/profile-picture'
+import { ProfilePicture } from "./_components/profile-picture";
 // import { db } from '@/lib/db'
 // import { currentUser } from '@clerk/nextjs'
 
@@ -39,7 +39,7 @@ export default async function PreferencesPage(props: Props) {
   // }
 
   const updateUserInfo = async (name: string) => {
-    'use server'
+    "use server";
 
     // const updateUser = await db.user.update({
     //   where: {
@@ -50,7 +50,7 @@ export default async function PreferencesPage(props: Props) {
     //   },
     // })
     // return updateUser
-  }
+  };
 
   return (
     <>
@@ -62,9 +62,12 @@ export default async function PreferencesPage(props: Props) {
           </p>
         </div>
         {/* <ProfilePicture
-          onDelete={removeProfileImage}
-          userImage={user?.profileImage || ''}
-          onUpload={uploadProfileImage}
+          // onDelete={removeProfileImage}
+          onDelete={() => {}}
+          // userImage={user?.profileImage || ''}
+          userImage={''}
+          // onUpload={uploadProfileImage}
+          onUpload={() => {}}
         /> */}
         <ProfileForm user={{}} onUpdate={updateUserInfo} />
       </div>
