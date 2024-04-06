@@ -30,39 +30,64 @@ const ImageUpload: React.FC = () => {
 
   const { errors } = form.formState;
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const _files = Array.from(event.target.files);
-      const allowedTypes = [
-        "image/png",
-        "image/jpeg",
-        "image/gif",
-        "image/svg+xml",
-      ];
-      // validate file types
-      const isValid = _files.every((file) => allowedTypes.includes(file.type));
-      if (!isValid) {
-        const inValidFileIndexes = _files.reduce((acc, file, index) => {
-          if (!allowedTypes.includes(file.type)) {
-            if (!acc.includes(index)) {
-              acc.push(index);
-            }
+  const validateFiles = (files: File[]) => {
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/svg+xml",
+    ];
+    // validate file types
+    const isValid = files.every((file) => allowedTypes.includes(file.type));
+    if (!isValid) {
+      const inValidFileIndexes = files.reduce((acc, file, index) => {
+        if (!allowedTypes.includes(file.type)) {
+          if (!acc.includes(index)) {
+            acc.push(index);
           }
-          return acc;
-        }, [] as number[]);
-        toast.error(
-          `Invalid file type${inValidFileIndexes.length ? "(s) " : ""}. ${inValidFileIndexes.length ? inValidFileIndexes.join(", ") : ""}`
-        );
-        return;
-      }
+        }
+        return acc;
+      }, [] as number[]);
+      toast.error(
+        `Invalid file type${inValidFileIndexes.length ? "(s) " : ""}. ${inValidFileIndexes.length ? inValidFileIndexes.join(", ") : ""}`
+      );
+    }
+    return isValid;
+  };
+
+  const handleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement> | undefined
+  ) => {
+    let _files: File[] = event?.target.files
+      ? Array.from(event.target.files)
+      : [];
+    if (_files?.length) {
       setFiles((prev) => [...prev, ..._files]);
       toast.success(`Image ${_files.length > 1 ? "(s)" : ""} found.`);
     }
   };
 
+  const handleFileDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault(); // Prevent default behavior
+    if (!event.dataTransfer) {
+      return toast.error("An error occured while uploading");
+    }
+    const _files = Array.from(event.dataTransfer.files);
+    if (_files?.length) {
+      setFiles((prev) => [...prev, ..._files]);
+      return toast.success(`Image ${_files.length > 1 ? "(s)" : ""} found.`);
+    } else {
+      return toast.error("An error occured while uploading");
+    }
+  };
+
   const onSubmit = async (data: ImageUploadFormData) => {
     try {
-      toast.success("Success.");
+      if (data) {
+        toast.success("Success.");
+      } else {
+        throw new Error("Error incurred while uploading");
+      }
     } catch (error) {
       toast.error(
         "There was an error uploading your image(s). Please try again."
@@ -84,6 +109,8 @@ const ImageUpload: React.FC = () => {
                   <div className="flex items-center justify-center w-full">
                     <label
                       htmlFor="dropzone-file"
+                      onDragOver={(event) => event.preventDefault()} // Prevent default behavior
+                      onDrop={handleFileDrop}
                       className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
                     >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -139,6 +166,10 @@ const ImageUpload: React.FC = () => {
                             type="button"
                             className="absolute top-2 right-2 p-2 bg-gray-800 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                             aria-label="Remove image"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setFiles((prevFiles) => prevFiles.filter((_, fileIndex) => fileIndex !== index));
+                            }}
                           >
                             <svg
                               className="w-6 h-6 text-white"
@@ -163,7 +194,7 @@ const ImageUpload: React.FC = () => {
               </FormControl>
             </FormItem>
           )}
-        ></FormField>
+        />
         <Button type="submit" className="mt-4">
           Upload
         </Button>
