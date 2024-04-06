@@ -81,7 +81,9 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <ImageUpload/>
+            <div className="my-64">
+              <ImageUpload/>
+            </div>
             <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-10">
               <div className="mx-auto aspect-video overflow-hidden bg-neutral-100 dark:bg-neutral-800 rounded-xl object-cover object-center sm:w-full lg:order-last" />
               <div className="flex flex-col justify-center space-y-4">
