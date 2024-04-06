@@ -17,7 +17,7 @@ import {
 import Image from "next/image";
 
 const ImageUploadSchema = z.object({
-  picture: z.any().optional(),
+  images: z.any().optional(),
 });
 
 type ImageUploadFormData = z.infer<typeof ImageUploadSchema>;
@@ -30,7 +30,7 @@ const ImageUpload: React.FC = () => {
 
   const { errors } = form.formState;
 
-  const validateFiles = (files: File[]) => {
+  const validFiles = (files: File[]) => {
     const allowedTypes = [
       "image/png",
       "image/jpeg",
@@ -55,16 +55,33 @@ const ImageUpload: React.FC = () => {
     return isValid;
   };
 
+  const filesUnderLimit = (files: File[]) => {
+    const maxSize = 1024 * 1024 * 2; // 2MB in bytes
+    const largeFiles = files.filter((file) => file.size > maxSize);
+    if (!!largeFiles.length) {
+      const fileNames = largeFiles.map((file) => file.name).join(", ");
+      toast.error(
+        `${fileNames} exceed the maximum size of ${maxSize / (1024 * 1024)}MB. Please select smaller files.`
+      );
+    }
+    return !!largeFiles.length; // files are too large
+  }
+
+  const handleFiles = (files: File[]) => {
+    if (!!files?.length && validFiles(files) && filesUnderLimit(files)) {
+      setFiles((prev) => [...prev, ...files]);
+      toast.success(`Image ${files.length > 1 ? "(s)" : ""} found.`);
+    } else {
+      return toast.error("An error occured while uploading:change");
+    }
+  }
+
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement> | undefined
   ) => {
-    let _files: File[] = event?.target.files
+     handleFiles(event?.target.files
       ? Array.from(event.target.files)
-      : [];
-    if (_files?.length) {
-      setFiles((prev) => [...prev, ..._files]);
-      toast.success(`Image ${_files.length > 1 ? "(s)" : ""} found.`);
-    }
+      : [])
   };
 
   const handleFileDrop = (event: React.DragEvent<HTMLLabelElement>) => {
@@ -72,19 +89,13 @@ const ImageUpload: React.FC = () => {
     if (!event.dataTransfer) {
       return toast.error("An error occured while uploading");
     }
-    const _files = Array.from(event.dataTransfer.files);
-    if (_files?.length) {
-      setFiles((prev) => [...prev, ..._files]);
-      return toast.success(`Image ${_files.length > 1 ? "(s)" : ""} found.`);
-    } else {
-      return toast.error("An error occured while uploading");
-    }
+    handleFiles(Array.from(event.dataTransfer.files))
   };
 
   const onSubmit = async (data: ImageUploadFormData) => {
     try {
-      if (data) {
-        toast.success("Success.");
+      if (!!Object.keys(data).length) {
+        toast.success("Success. " + JSON.stringify(data));
       } else {
         throw new Error("Error incurred while uploading");
       }
@@ -100,7 +111,7 @@ const ImageUpload: React.FC = () => {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
-          name="picture"
+          name="images"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Profile Picture</FormLabel>
@@ -134,7 +145,7 @@ const ImageUpload: React.FC = () => {
                           or drag and drop
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          SVG, PNG, JPG or GIF (MAX. 800x400px)
+                          SVG, PNG, JPG or GIF (MAX. 2MB.)
                         </p>
                       </div>
                       <input
@@ -183,7 +194,7 @@ const ImageUpload: React.FC = () => {
                                 strokeLinejoin="round"
                                 strokeWidth="2"
                                 d="M6 18L18 6M6 6l12 12"
-                              ></path>
+                              />
                             </svg>
                           </button>
                         </div>
