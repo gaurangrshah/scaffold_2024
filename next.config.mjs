@@ -1,4 +1,35 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+/** @NOTE: there is a known error related to .mjs ext for next.config  related to webpack:
+ * 
+ * @SEE: https://github.com/contentlayerdev/contentlayer/issues/129
+ */
+import { build } from "velite";
 
-export default nextConfig;
+/** @type {import('next').NextConfig} */
+class VeliteWebpackPlugin {
+  static started = false;
+  constructor(/** @type {import('velite').Options} */ options = {}) {
+    this.options = options;
+  }
+  apply(/** @type {import('webpack').Compiler} */ compiler) {
+    // executed three times in nextjs !!!
+    // twice for the server (nodejs / edge runtime) and once for the client
+    compiler.hooks.beforeCompile.tapPromise("VeliteWebpackPlugin", async () => {
+      if (VeliteWebpackPlugin.started) return;
+      VeliteWebpackPlugin.started = true;
+      const dev = compiler.options.mode === "development";
+      this.options.watch = this.options.watch ?? dev;
+      this.options.clean = this.options.clean ?? !dev;
+      await build(this.options); // start velite
+    });
+  }
+}
+
+// eslint-disable-next-line import/no-anonymous-default-export
+export default {
+  // othor next config here...
+  webpack: (config) => {
+    config.plugins.push(new VeliteWebpackPlugin());
+    // config.infrastructureLogging = { debug: /PackFileCache/ } // used to debug known webpack warnings
+    return config;
+  },
+};

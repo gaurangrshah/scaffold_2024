@@ -38,3 +38,6 @@ next-env.d.ts
 
 
 /.history/
+
+# velite files
+.velite
