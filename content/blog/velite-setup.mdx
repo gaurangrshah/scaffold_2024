@@ -1,0 +1,935 @@
+---
+title: Velite Setup
+description: Velite setup with Next.js
+date: 2024-04-06
+---
+
+# Velite
+
+// reference: https://github.com/jolbol1/nextjs-velite-blog-template/blob/master/app/blog/%5B...slug%5D/page.tsx
+
+## Setup
+
+```shell
+pnpm dlx create next-app@latest --tailwind -ts --app --eslint
+```
+
+```shell
+pnpm dlx shadcn-ui@latest init
+```
+
+```shell
+pnpm add velite -D
+```
+
+```shell
+code velite.config.ts
+```
+
+```ts
+// velite.config.ts
+
+import { defineConfig, defineCollection, s } from "velite";
+
+const computedFields = <T extends { slug: string }>(data: T) => ({
+  ...data,
+  // get slug from path aka data.slug used on the server by the PostPage 
+  slugAsParams: data.slug.split("/").slice(1).join("/"),
+});
+
+const posts = defineCollection({
+  name: "Post",
+  pattern: "blog/**/*.mdx",
+  schema: s
+    .object({
+      slug: s.path(),
+      title: s.string().max(99),
+      description: s.string().max(999).optional(),
+      date: s.isodate(),
+      published: s.boolean().default(true),
+      tags: s.array(s.string()).optional(),
+      body: s.mdx(),
+    })
+    .transform(computedFields),
+});
+
+export default defineConfig({
+  root: "content",
+  output: {
+    data: ".velite", // internal generated dir -- must be ignored
+    assets: "public/static", // asset dir path relative to this config file
+    base: "/static/", // public base asset path
+    name: "[name]-[hash:6].[ext]", // template for file nameing
+    // name-6charhash.fileextension
+    clean: true, // cleans the output dir before build
+  },
+  collections: { posts },
+  mdx: {
+    // mdx plugins can be added here
+    rehypePlugins: [],
+    remarkPlugins: [],
+  },
+});
+```
+
+> https://velite.js.org/reference/config#output-name
+
+```js
+// next.config.mjs
+
+import { build } from 'velite'
+
+/** @type {import('next').NextConfig} */
+export default {
+  // othor next config here...
+  webpack: config => {
+    config.plugins.push(new VeliteWebpackPlugin())
+    return config
+  }
+}
+
+class VeliteWebpackPlugin {
+  static started = false
+  constructor(/** @type {import('velite').Options} */ options = {}) {
+    this.options = options
+  }
+  apply(/** @type {import('webpack').Compiler} */ compiler) {
+    // executed three times in nextjs !!!
+    // twice for the server (nodejs / edge runtime) and once for the client
+    compiler.hooks.beforeCompile.tapPromise('VeliteWebpackPlugin', async () => {
+      if (VeliteWebpackPlugin.started) return
+      VeliteWebpackPlugin.started = true
+      const dev = compiler.options.mode === 'development'
+      this.options.watch = this.options.watch ?? dev
+      this.options.clean = this.options.clean ?? !dev
+      await build(this.options) // start velite
+    })
+  }
+}
+```
+
+> https://velite.js.org/guide/with-nextjs
+
+```shell
+echo -e "\n\n# velite files\n.velite" >> .gitignore
+```
+
+```shell
+mkdir content && mkdir content/blog && code content/blog/hello-world.mdx
+```
+
+> Vscode MDX extension:
+> https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx
+
+```markdown
+---
+title: Hello World
+description: First post!
+date: 2024-04-06
+---
+```
+
+> Restart server after adding new content for the content layer to generate the neccesary files (this is only required on the first run). After this files will be watched automatically when we start our dev server.
+>
+> ```shell
+> pnpm dev
+> ```
+>
+> > Velite will generate files and now watch for changes.
+> >
+> > ```shell
+> > [VELITE] build finished in 257.80ms
+> > [VELITE] watching for changes in 'content' 
+> > ```
+> >
+> > 
+
+```json
+// tsconfig.json
+{
+  "paths": {
+    "@/*": "['./*']",
+    "#site/content": "[./,velite]" // allows us to alias generated content from .velite
+  }
+}
+```
+
+
+
+```shell
+pn i github-slugger
+```
+
+```ts
+// lib/utils.ts
+
+import { Post } from "#site/content";
+import { slug } from "github-slugger";
+
+export function formatDate(input: string | number): string {
+  const date = new Date(input);
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export function sortPosts(posts: Array<Post>) {
+  return posts.sort((a, b) => {
+    if (a.date > b.date) return -1;
+    if (a.date < b.date) return 1;
+    return 0;
+  });
+}
+
+export function getAllTags(posts: Array<Post>) {
+  const tags: Record<string, number> = {}
+  posts.forEach(post => {
+    post.tags?.forEach(tag => {
+      tags[tag] = (tags[tag] ?? 0) + 1;
+    })
+  })
+
+  return tags;
+}
+
+export function sortTagsByCount(tags: Record<string, number>) {
+  return Object.keys(tags).sort((a, b) => tags[b] - tags[a])
+}
+
+export function getPostsByTagSlug(posts: Array<Post>, tag: string) {
+  return posts.filter(post => {
+    if (!post.tags) return false
+    const slugifiedTags = post.tags.map(tag => slug(tag))
+    return slugifiedTags.includes(tag)
+  })
+}
+```
+
+
+
+```shell
+mkdir config && code config/site.ts
+```
+
+```ts
+// config/site.ts
+
+export const siteConfig() {
+  name: "site-name",
+  url: "https://example.com",
+  description: "Nextjs 14 blog using velite, tailwind and shadcn-ui",
+  author: "your name",
+  links: {
+    twitter: "https://twitter.com/@username",
+    github.com: "https://github.com/username",
+    personalSite: "https://yourdomain.com"
+  },
+}
+
+export type SiteConfig = typeof siteConfig;
+```
+
+> This is not a convention for velite, just an easy way to organize constants.
+
+
+
+
+
+## Blog
+
+```shell
+mkdir app/blog && code app/blog/page.tsx && mkdir app/blog/_components && code app/blog/_components/post-item.tsx && mkdir app/blog/[...slug] && code app/blog/[...slug]/page.tsx
+```
+
+```tsx
+// app/blog/_components/post-item.tsx
+
+import { Calendar } from "lucide-react";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { cn, formatDate } from "@/lib/utils";
+import { Tag } from "./tag";
+
+interface PostItemProps {
+  slug: string;
+  title: string;
+  description?: string;
+  date: string;
+  tags?: Array<string>;
+}
+
+export function PostItem({
+  slug,
+  title,
+  description,
+  date,
+  tags,
+}: PostItemProps) {
+  return (
+    <article className="flex flex-col gap-2 border-border border-b py-3">
+      <div>
+        <h2 className="text-2xl font-bold">
+          <Link href={"/" + slug}>{title}</Link>
+        </h2>
+      </div>
+      <div className="flex gap-2">
+        {tags?.map((tag) => (
+          <Tag tag={tag} key={tag} />
+        ))}
+      </div>
+      <div className="max-w-none text-muted-foreground">{description}</div>
+      <div className="flex justify-between items-center">
+        <dl>
+          <dt className="sr-only">Published On</dt>
+          <dd className="text-sm sm:text-base font-medium flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <time dateTime={date}>{formatDate(date)}</time>
+          </dd>
+        </dl>
+        <Link
+          href={"/" + slug}
+          className={cn(buttonVariants({ variant: "link" }), "py-0")}
+        >
+          Read more →
+        </Link>
+      </div>
+    </article>
+  );
+}
+```
+
+```tsx
+// app/blog/_components/tag.tsx
+
+import Link from "next/link";
+import { slug } from "github-slugger";
+import { badgeVariants } from "@/components/ui/badge";
+
+interface TagProps {
+  tag: string;
+  current?: boolean;
+  count?: number;
+}
+export function Tag({ tag, current, count }: TagProps) {
+  return (
+    <Link
+      className={badgeVariants({
+        variant: current ? "default" : "secondary",
+        className: "no-underline rounded-md",
+      })}
+      href={`/tags/${slug(tag)}`}
+    >
+      {tag} {count ? `(${count})` : null}
+    </Link>
+  );
+}
+```
+
+```tsx
+// app/blog/components/query-pagination.tsx
+
+"use client";
+
+import { usePathname, useSearchParams } from "next/navigation";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+} from "@/components/ui/pagination";
+
+interface QueryPaginationProps {
+  totalPages: number;
+  className?: string;
+}
+
+export function QueryPagination({
+  totalPages,
+  className,
+}: QueryPaginationProps) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentPage = Number(searchParams.get("page")) || 1;
+
+  const prevPage = currentPage - 1;
+  const nextPage = currentPage + 1;
+
+  const createPageURL = (pageNumber: number | string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", pageNumber.toString());
+    return `${pathname}?${params.toString()}`;
+  };
+
+  return (
+    <Pagination className={className}>
+      <PaginationContent>
+        {prevPage >= 1 ? (
+          <PaginationItem>
+            <PaginationPrevious href={createPageURL(prevPage)} />
+          </PaginationItem>
+        ) : null}
+
+        {Array(totalPages)
+          .fill("")
+          .map((_, index) => (
+            <PaginationItem
+              className="hidden sm:inline-block"
+              key={`page-button-${index}`}
+            >
+              <PaginationLink
+                isActive={currentPage === index + 1}
+                href={createPageURL(index + 1)}
+              >
+                {index + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+        {nextPage <= totalPages ? (
+          <PaginationItem>
+            <PaginationNext href={createPageURL(nextPage)} />
+          </PaginationItem>
+        ) : null}
+      </PaginationContent>
+    </Pagination>
+  );
+}
+```
+
+
+
+```tsx
+// app/blog/page.tsx
+
+import { posts } from "#site/content";
+import { PostItem } from "./_components/post-item";
+import { QueryPagination } from "./_components/query-pagination";
+import { Tag } from "./_components/tag";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAllTags, sortPosts, sortTagsByCount } from "@/lib/utils";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "My blog",
+  description: "This is a description",
+};
+
+const POSTS_PER_PAGE = 5;
+
+interface BlogPageProps {
+  searchParams: {
+    page?: string;
+  };
+}
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
+  const currentPage = Number(searchParams?.page) || 1;
+  const sortedPosts = sortPosts(posts.filter((post) => post.published));
+  const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
+  console.log(posts);
+  const displayPosts = sortedPosts.slice(
+    POSTS_PER_PAGE * (currentPage - 1),
+    POSTS_PER_PAGE * currentPage
+  );
+
+  const tags = getAllTags(posts);
+  const sortedTags = sortTagsByCount(tags);
+
+  return (
+    <div className="container max-w-4xl py-6 lg:py-10">
+      <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
+        <div className="flex-1 space-y-4">
+          <h1 className="inline-block font-black text-4xl lg:text-5xl">Blog</h1>
+          <p className="text-xl text-muted-foreground">
+            My ramblings on all things web dev.
+          </p>
+        </div>
+      </div>
+      <div className="grid grid-cols-12 gap-3 mt-8">
+        <div className="col-span-12 col-start-1 sm:col-span-8">
+          <hr />
+          {!!displayPosts?.length ? (
+            <ul className="flex flex-col">
+              {displayPosts.map((post) => {
+                const { slug, date, title, description, tags } = post;
+                return (
+                  <li key={slug}>
+                    <PostItem
+                      slug={slug}
+                      date={date}
+                      title={title}
+                      description={description}
+                      tags={tags}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p>Nothing to see here yet</p>
+          )}
+          <QueryPagination
+            totalPages={totalPages}
+            className="justify-end mt-4"
+          />
+        </div>
+        <Card className="col-span-12 row-start-3 h-fit sm:col-span-4 sm:col-start-9 sm:row-start-1">
+          <CardHeader>
+            <CardTitle>Tags</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {sortedTags?.map((tag) => (
+              <Tag tag={tag} key={tag} count={tags[tag]} />
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+```
+
+> **NOTE:** Make sure you have at atleast 1 published post.
+
+```tsx
+// app/blog/[...slug]/page.tsx
+
+import { posts } from "#site/content";
+import { MDXContent } from "@/components/mdx-components";
+import { notFound } from "next/navigation";
+
+import "@/styles/mdx.css";
+import { Metadata } from "next";
+import { siteConfig } from "@/config/site";
+import { Tag } from "../_components/tag";
+
+
+
+interface PostPageProps {
+  params: {
+    slug: string[];
+  };
+}
+
+async function getPostFromParams(params: PostPageProps["params"]) {
+  const slug = params?.slug?.join("/");
+  const post = posts.find((post) => post.slugAsParams === slug);
+
+  return post;
+}
+
+export async function generateMetadata({
+  params,
+}: PostPageProps): Promise<Metadata> {
+  const post = await getPostFromParams(params);
+
+  if (!post) {
+    return {};
+  }
+
+  const ogSearchParams = new URLSearchParams();
+  ogSearchParams.set("title", post.title);
+
+  return {
+    title: post.title,
+    description: post.description,
+    authors: { name: siteConfig.author },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      url: post.slug,
+      images: [
+        {
+          url: `/api/og?${ogSearchParams.toString()}`,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: [`/api/og?${ogSearchParams.toString()}`],
+    },
+  };
+}
+
+export async function generateStaticParams(): Promise<
+  PostPageProps["params"][]
+> {
+  return posts.map((post) => ({ slug: post.slugAsParams.split("/") }));
+}
+
+export default async function PostPage({ params }: PostPageProps) {
+  const post = await getPostFromParams(params);
+
+  if (!post || !post.published) {
+    notFound();
+  }
+
+  return (
+    <article className="container py-6 prose dark:prose-invert max-w-3xl mx-auto">
+      <h1 className="mb-2">{post.title}</h1>
+      <div className="flex gap-2 mb-2">
+        {post.tags?.map((tag) => (
+          <Tag tag={tag} key={tag} />
+        ))}
+      </div>
+      {post.description ? (
+        <p className="text-xl mt-0 text-muted-foreground">{post.description}</p>
+      ) : null}
+      <hr className="my-4" />
+      <MDXContent code={post.body} />
+    </article>
+  );
+}
+```
+
+
+
+## Typography
+
+```shell
+pnpm i -D @tailwindcss/typography
+```
+
+```ts
+// tailwind.config.ts
+
+module.exports = {
+  theme: {
+    // ...
+  },
+  plugins: [
+    require('@tailwindcss-animate'),
+    require('@tailwindcss/typography');
+  ]
+};
+```
+
+> With this in place we are now able to allow tailwind to provide default styles for all of our typography related elements.
+
+
+
+## MDX Components
+
+> @SEE: Example from [shadcn/taxonomy](https://github.com/shadcn-ui/taxonomy/blob/main/components/mdx-components.tsx)
+
+```shell
+code components/mdx-components.tsx
+```
+
+```tsx
+// components/mdx-components.tsx
+
+import Image from "next/image";
+import * as runtime from "react/jsx-runtime";
+
+const useMDXComponent = (code: string) => {
+  const fn = new function(code);
+  return fn({...runtime}).default;
+}
+
+// any components mapped here will be available to use in MDX components.
+const components = {
+  Image, // you can use the <Image/>  component in mdx files now.
+}
+
+interface mdxProps {
+  code: string;
+}
+
+export function MDXContent({ code }: MdxProps) {
+  const Component = useMDXComponent(code);
+  return <Component components={components} />;
+}
+```
+
+
+
+### Custom MDX Component
+
+```shell
+mkdir components/mdx && code components/mdx/callout.tsx
+```
+
+```tsx
+// components/mdx/callout.tsx
+
+import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
+
+interface CalloutProps {
+  children?: ReactNode;
+  type?: "default" | "warning" | "danger"; // variants for styles
+}
+
+export function Callout({
+  children,
+  type = "default",
+  ...props
+}: CalloutProps) {
+  return (
+    <div
+      className={cn(
+        "my-6 items-start rounded-md border boder-l-4 p-4 w-full dark:max-w-none",
+        {
+          "border-red-900 bg-red-50 dark:prose": type === "danger",
+          "border-yellow-900 bg-yellow-50 dark:prose": type === "warning",
+        }
+      )}
+      {...props}
+    >
+      <div>{children}</div>
+    </div>
+  );
+}
+```
+
+> Each component must me added to our mdx components object:
+
+```ts
+// components/mdx-components.tsx
+
+import { Callout } from "./mdx/callout"
+
+// any components mapped here will be available to use in MDX components.
+const components = {
+  Image,
+  Callout
+}
+```
+
+> And now this can be used in our mdx files:
+
+```markdown
+# content/blog/hello-world.mdx
+
+---
+title: Hello World
+description: First post!
+date: 2024-04-06
+---
+
+<Callout type="danger">This is a callout</Callout>
+
+# Hello World
+
+Welcome to my blog
+
+## Another Heading
+
+### And another one
+```
+
+> https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx
+
+
+
+## Code Highlighting in MDX
+
+```shell
+pnpm i -D rehype-pretty-code rehype-autolink-headings rehype-slug
+```
+
+```ts
+// velite.config.ts
+
+import rehypeSlug from "rehype-slug";
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+
+export default defineConfig({
+	// ...
+  mdx: {
+    rehypePlugins: [
+      rehypeSlug,
+      [rehypePrettyCode, { theme: "tokyo-night" }],
+      [
+        rehypeAutolinkHeadings, //  turns links in headdings
+        {
+          behavior: "wrap",
+          properties: {
+            // add accessibility support
+            className: ["subheading-anchor"],
+            ariaLabel: "Link to section",
+          },
+        },
+      ],
+    ],
+    remarkPlugins: [],
+  },
+});
+```
+
+> **NOTE:** To style Autolinked headings properly we should add a bit of scroll-padding-top to our root element:
+>
+> ```tsx
+> // app/layout.tsx
+> 
+> export default RootLayout() {
+>   return (
+>     <html lang="en" className="scroll-pt-[3.5rem]">
+>     	{/*...*/}
+>     </html>
+>   )
+> }
+> ```
+
+
+
+```shell
+mkdir styles && code styles/mdx.css
+```
+
+```css
+/* 
+  REFERENCE: 
+  https://github.com/shadcn-ui/taxonomy/blob/651f984e52edd65d40ccd55e299c1baeea3ff017/styles/mdx.css
+*/
+
+[data-rehype-pretty-code-figure] pre {
+  @apply px-0;
+}
+
+[data-rehype-pretty-code-figure] code {
+  @apply text-sm !leading-loose md:text-base border-0 p-0;
+}
+
+[data-rehype-pretty-code-figure] code[data-line-numbers] {
+  counter-reset: line;
+}
+
+[data-rehype-pretty-code-figure] code[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  @apply mr-4 inline-block w-4 text-right text-gray-500;
+}
+
+[data-rehype-pretty-code-figure] [data-line] {
+  @apply border-l-2 border-l-transparent px-3;
+}
+
+[data-rehype-pretty-code-figure] [data-highlighted-line] {
+  background: rgba(200, 200, 255, 0.1);
+  @apply border-l-blue-400;
+}
+
+[data-rehype-pretty-code-figure] [data-highlighted-chars] {
+  @apply rounded bg-zinc-600/50;
+  box-shadow: 0 0 0 4px rgb(82 82 91 / 0.5);
+}
+
+[data-rehype-pretty-code-figure] [data-chars-id] {
+  @apply border-b-2 p-1 shadow-none;
+}
+
+.subheading-anchor {
+  @apply no-underline hover:underline;
+}
+```
+
+> **NOTE:** Need to apply tailwind `uknown at rule` fix:
+>
+> ```json
+> // .vscode/settings.json
+> 
+> {
+>   "files.associations": {
+>     "*.css": "tailwindcss"
+>   }
+> }
+> ```
+
+
+
+```shell
+mkdir content/docs && touch content/docs/code-blocks.mdx
+```
+
+`````markdown
+# content/docs/code-blocks.mdx
+
+---
+title: Code Blocks
+description: Advanced code blocks with highlighting, file names and more.
+---
+
+The code blocks on the documentation site and the blog are powered by [rehype-pretty-code](https://github.com/atomiks/rehype-pretty-code). The syntax highlighting is done using [shiki](https://github.com/shikijs/shiki).
+
+It has the following features:
+
+1. Beautiful code blocks with syntax highlighting.
+2. Support for VS Code themes.
+3. Works with hundreds of languages.
+4. Line and word highlighting.
+5. Support for line numbers.
+6. Show code block titles using meta strings.
+
+<Callout>
+
+Thanks to Shiki, highlighting is done at build time. No JavaScript is sent to the client for runtime highlighting.
+
+</Callout>
+
+## Example
+
+```ts showLineNumbers title="next.config.js" {3} /appDir: true/
+import { withContentlayer } from "next-contentlayer"
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ["avatars.githubusercontent.com"],
+  },
+  experimental: {
+    appDir: true,
+    serverComponentsExternalPackages: ["@prisma/client"],
+  },
+}
+
+export default withContentlayer(nextConfig)
+```
+
+## Title
+
+````mdx
+```ts title="path/to/file.ts"
+// Code here
+```
+````
+
+## Line Highlight
+
+````mdx
+```ts {1,3-6}
+// Highlight line 1 and line 3 to 6
+```
+````
+
+## Word Highlight
+
+````mdx
+```ts /shadcn/
+// Highlight the word shadcn.
+```
+````
+
+## Line Numbers
+
+````mdx
+```ts showLineNumbers
+// This will show line numbers.
+```
+````
+`````
+
