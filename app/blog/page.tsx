@@ -23,7 +23,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const currentPage = Number(searchParams?.page) || 1;
   const sortedPosts = sortPosts(posts.filter((post) => post.published));
   const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
-
+  console.log(posts);
   const displayPosts = sortedPosts.slice(
     POSTS_PER_PAGE * (currentPage - 1),
     POSTS_PER_PAGE * currentPage
@@ -45,7 +45,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       <div className="grid grid-cols-12 gap-3 mt-8">
         <div className="col-span-12 col-start-1 sm:col-span-8">
           <hr />
-          {displayPosts?.length > 0 ? (
+          {!!displayPosts?.length ? (
             <ul className="flex flex-col">
               {displayPosts.map((post) => {
                 const { slug, date, title, description, tags } = post;
