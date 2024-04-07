@@ -20,13 +20,13 @@ interface BlogPageProps {
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const currentPage = Number(searchParams?.page) || 1;
+  const currentPage = Number(searchParams?.page) || 1; // default to 1f no params are provided
   const sortedPosts = sortPosts(posts.filter((post) => post.published));
   const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
-  console.log(posts);
+
   const displayPosts = sortedPosts.slice(
-    POSTS_PER_PAGE * (currentPage - 1),
-    POSTS_PER_PAGE * currentPage
+    POSTS_PER_PAGE * (currentPage - 1), // start index
+    POSTS_PER_PAGE * currentPage // max per page
   );
 
   const tags = getAllTags(posts);

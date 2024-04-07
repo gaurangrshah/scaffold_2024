@@ -4,8 +4,13 @@
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 import Link from "next/link";
+import { PostItem } from "./blog/_components/post-item";
+import { sortPosts } from "@/lib/utils";
+import { posts } from "#site/content";
 
 export default function LandingPage() {
+  const latestPosts = sortPosts(posts).slice(0, 5);
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center">
@@ -115,6 +120,25 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        <section className="container max-w-4xl py-6 lg:py-10 flex flex-col space-y-6 mt-60">
+        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-center">
+          Latest Posts
+        </h2>
+        <ul className="flex flex-col">
+          {latestPosts.map((post) => (
+            <li key={post.slug} className="first:border-t first:border-border">
+              <PostItem
+                slug={post.slug}
+                title={post.title}
+                description={post.description}
+                date={post.date}
+                tags={post.tags}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
 
         <section className="w-full py-12 md:py-24 lg:py-32 border-t">
           <div className="container px-4 md:px-6">
